@@ -1,0 +1,121 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:orientation="vertical"
+	android:id="@+id/parentLayout"
+	tools:context="com.splitTheRide.settings.RoutesView">
+
+	<android.support.design.widget.AppBarLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:theme="@style/AppTheme.AppBarOverlay">
+
+		<android.support.v7.widget.Toolbar
+			android:id="@+id/toolbar"
+			android:layout_width="match_parent"
+			android:layout_height="?attr/actionBarSize"
+			android:background="?attr/colorPrimary"
+			app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+	</android.support.design.widget.AppBarLayout>
+
+	<TableLayout android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="10dp"
+		android:layout_marginLeft="20dp"
+		android:layout_marginRight="20dp"
+		android:shrinkColumns="*"
+		android:stretchColumns="*" >
+
+		<TableRow android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:paddingTop="10dp">
+
+			<TextView android:id="@+id/textView1"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:layout_gravity="center_vertical"
+				android:text="@string/name"
+				android:textAppearance="?android:attr/textAppearanceMedium" />
+
+			<EditText android:id="@+id/segment_name"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:ems="10"
+				android:inputType="text"
+				android:hint="@string/segment_name_example" />
+
+		</TableRow>
+
+		<TableRow android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:paddingTop="10dp">
+
+			<TextView android:id="@+id/textView2"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:layout_gravity="center_vertical"
+				android:text="@string/distance"
+				android:textAppearance="?android:attr/textAppearanceMedium" />
+
+			<EditText android:id="@+id/segment_distance"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:ems="10"
+				android:inputType="number"
+				android:hint="@string/distance_example" />
+
+		</TableRow>
+
+		<TableRow android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:paddingTop="10dp">
+
+			<TextView android:id="@+id/textView3"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:layout_gravity="center_vertical"
+				android:text="@string/cost"
+				android:textAppearance="?android:attr/textAppearanceMedium" />
+
+			<EditText android:id="@+id/segment_cost"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:ems="10"
+				android:hint="@string/cost"
+				android:inputType="numberDecimal" >
+			</EditText>
+
+		</TableRow>
+
+	</TableLayout>
+
+
+	<Button android:id="@+id/ok"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="20dp"
+		android:layout_marginLeft="30dp"
+		android:layout_marginRight="30dp"
+		android:layout_gravity="center_horizontal"
+		android:text="@string/ok" />
+
+	<Button android:id="@+id/cancel"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="30dp"
+		android:layout_marginRight="30dp"
+		android:layout_gravity="center_horizontal"
+		android:text="@string/cancel" />
+
+
+
+</LinearLayout>

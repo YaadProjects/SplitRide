@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_home"
+            android:title="Home" />
+        <item
+            android:id="@+id/nav_gallery"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Accounts" />
+        <item
+            android:id="@+id/nav_slideshow"
+            android:icon="@drawable/ic_menu_slideshow"
+            android:title="Transactions" />
+        <item
+            android:id="@+id/nav_share"
+            android:icon="@drawable/ic_menu_share"
+            android:title="Share" />
+    </group>
+
+    <item android:title="Settings">
+        <menu>
+            <item
+                android:id="@+id/nav_segments"
+                android:icon="@drawable/ic_segments"
+                android:title="Segments" />
+            <item
+                android:id="@+id/nav_routes"
+                android:icon="@drawable/ic_routes"
+                android:title="Routes" />
+            <item
+                android:id="@+id/nav_persons"
+                android:icon="@drawable/ic_persons"
+                android:title="Persons" />
+            <item
+                android:id="@+id/nav_vehicles"
+                android:icon="@drawable/ic_vehicles"
+                android:title="Vehicles" />
+        </menu>
+    </item>
+
+</menu>
