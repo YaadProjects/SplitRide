@@ -1,6 +1,9 @@
 package joao.splitride.app.main;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -15,16 +18,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.parse.ParseException;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.roomorama.caldroid.CaldroidFragment;
 
 import java.util.Calendar;
 
 import joao.splitride.R;
+import joao.splitride.app.entities.UsersByCalendars;
+import joao.splitride.app.fragments.MyCalendarsFragment;
 import joao.splitride.app.fragments.RoutesFragment;
 import joao.splitride.app.fragments.Segments;
 import joao.splitride.app.fragments.UsersFragment;
 import joao.splitride.app.login.DispatchActivity;
+import joao.splitride.app.settings.AddEditCalendar;
 import joao.splitride.app.settings.AddEditRoute;
 import joao.splitride.app.settings.AddEditSegment;
 
@@ -35,6 +43,7 @@ public class MainActivity extends AppCompatActivity
     private Segments segments;
     private RoutesFragment routesFragment;
     private UsersFragment usersFragment;
+    private MyCalendarsFragment calendarsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,12 +59,16 @@ public class MainActivity extends AppCompatActivity
 
                 Segments segments_frag = (Segments) getSupportFragmentManager().findFragmentByTag("SEGMENTS");
                 RoutesFragment routes_frag = (RoutesFragment) getSupportFragmentManager().findFragmentByTag("ROUTES");
+                MyCalendarsFragment calendars_frag = (MyCalendarsFragment) getSupportFragmentManager().findFragmentByTag("CALENDARS");
 
                 if (segments_frag != null && segments_frag.isVisible()) {
                     Intent intent = new Intent(MainActivity.this, AddEditSegment.class);
                     startActivity(intent);
                 }else if(routes_frag != null && routes_frag.isVisible()){
                     Intent intent = new Intent(MainActivity.this, AddEditRoute.class);
+                    startActivity(intent);
+                }else if(calendars_frag != null && calendars_frag.isVisible()){
+                    Intent intent = new Intent(MainActivity.this, AddEditCalendar.class);
                     startActivity(intent);
                 }
                 else Log.d("frag", "calendar");
@@ -133,41 +146,92 @@ public class MainActivity extends AppCompatActivity
 
             // Commit the transaction
             transaction.commit();*/
-        }else if (id == R.id.nav_gallery) {
+        }else if (id == R.id.nav_balance) {
 
-        } else if (id == R.id.nav_slideshow) {
+        }else  if (id == R.id.nav_my_calendars) {
+
+            calendarsFragment = new MyCalendarsFragment();
+
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+            transaction.replace(R.id.calendar1, calendarsFragment, "CALENDARS");
+            transaction.addToBackStack(null);
+
+            // Commit the transaction
+            transaction.commit();
+
+
+        }else if (id == R.id.nav_transactions) {
 
         } else if (id == R.id.nav_routes) {
-            routesFragment = new RoutesFragment();
+            if(hasCalendars()){
+                routesFragment = new RoutesFragment();
 
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
-            transaction.replace(R.id.calendar1, routesFragment, "ROUTES");
-            transaction.addToBackStack(null);
+                transaction.replace(R.id.calendar1, routesFragment, "ROUTES");
+                transaction.addToBackStack(null);
 
-            // Commit the transaction
-            transaction.commit();
+                // Commit the transaction
+                transaction.commit();
+            }else{
+                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+
+                alertDialog.setTitle("Error");
+                alertDialog.setMessage("You have no calendars set. Please go to the My Calendars and create one.");
+                alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {  }
+                });
+                alertDialog.show();
+            }
+
         } else if (id == R.id.nav_persons) {
-            usersFragment = new UsersFragment();
+            if(hasCalendars()){
+                usersFragment = new UsersFragment();
 
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
-            transaction.replace(R.id.calendar1, usersFragment, "PERSONS");
-            transaction.addToBackStack(null);
+                transaction.replace(R.id.calendar1, usersFragment, "PERSONS");
+                transaction.addToBackStack(null);
 
-            // Commit the transaction
-            transaction.commit();
+                // Commit the transaction
+                transaction.commit();
+            }else{
+                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+
+                alertDialog.setTitle("Error");
+                alertDialog.setMessage("You have no calendars set. Please go to the My Calendars and create one.");
+                alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {  }
+                });
+                alertDialog.show();
+            }
+
 
         } else if (id == R.id.nav_segments) {
-            segments = new Segments();
 
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            if(hasCalendars()){
+                segments = new Segments();
 
-            transaction.replace(R.id.calendar1, segments, "SEGMENTS");
-            transaction.addToBackStack(null);
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
-            // Commit the transaction
-            transaction.commit();
+                transaction.replace(R.id.calendar1, segments, "SEGMENTS");
+                transaction.addToBackStack(null);
+
+                // Commit the transaction
+                transaction.commit();
+            }else{
+                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+
+                alertDialog.setTitle("Error");
+                alertDialog.setMessage("You have no calendars set. Please go to the My Calendars and create one.");
+                alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {  }
+                });
+                alertDialog.show();
+
+            }
+
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -206,5 +270,36 @@ public class MainActivity extends AppCompatActivity
         }else if(route != null && route.isVisible()){
             routesFragment.editOnClickHandler(v);
         }
+    }
+
+    /*
+        UTILS
+     */
+    private boolean hasCalendars(){
+
+        boolean calendars = false;
+
+        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+        String userID = sharedPreferences.getString("userID", "");
+
+        ParseQuery<UsersByCalendars> query = ParseQuery.getQuery("UsersByCalendar");
+        query.whereEqualTo("UserID", userID);
+
+        UsersByCalendars usersByCalendars = null;
+        try {
+            usersByCalendars = query.getFirst();
+
+            if(usersByCalendars != null){
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("calendarID", usersByCalendars.getCalendarID());
+                editor.commit();
+
+                calendars = true;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return calendars;
     }
 }

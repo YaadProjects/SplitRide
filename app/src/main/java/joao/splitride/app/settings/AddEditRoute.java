@@ -50,6 +50,7 @@ public class AddEditRoute extends AppCompatActivity implements OnClickListener{
         name = (EditText) findViewById(R.id.route_name);
         route_segments = (ListView) findViewById(R.id.segments_list);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("Routes");
         setSupportActionBar(toolbar);
 
         ok = (Button) findViewById(R.id.ok);
@@ -119,7 +120,6 @@ public class AddEditRoute extends AppCompatActivity implements OnClickListener{
             @Override
             public void done(ParseException e) {
                 if (e == null) {
-
 
                     ParseQuery<Route> query = ParseQuery.getQuery("Routes");
                     query.whereEqualTo("Name", name);

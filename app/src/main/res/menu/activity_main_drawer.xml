@@ -7,17 +7,17 @@
             android:icon="@drawable/ic_home"
             android:title="Home" />
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Accounts" />
+            android:id="@+id/nav_balance"
+            android:icon="@drawable/ic_balance"
+            android:title="Balance" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
+            android:id="@+id/nav_transactions"
+            android:icon="@drawable/ic_transactions"
             android:title="Transactions" />
         <item
-            android:id="@+id/nav_share"
-            android:icon="@drawable/ic_menu_share"
-            android:title="Share" />
+            android:id="@+id/nav_my_calendars"
+            android:icon="@drawable/ic_calendar"
+            android:title="My Calendars" />
     </group>
 
     <item android:title="Settings">

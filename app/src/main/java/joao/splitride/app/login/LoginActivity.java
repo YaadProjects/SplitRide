@@ -3,6 +3,7 @@ package joao.splitride.app.login;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
@@ -123,6 +124,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                 .show(); // Don’t forget to show!
                     } else {
                         // Start an intent for the dispatch activity
+                        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("userID", user.getObjectId());
+                        editor.commit();
+
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);

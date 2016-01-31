@@ -13,11 +13,12 @@ import android.widget.ListView;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.util.List;
 
 import joao.splitride.R;
-import joao.splitride.app.entities.User;
+import joao.splitride.app.custom.UserListAdapter;
 
 /**
  * Created by Joao on 17-01-2016.
@@ -30,7 +31,7 @@ public class UsersFragment extends ListFragment implements SwipeRefreshLayout.On
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_routes, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_users, container, false);
 
         users_list = (ListView) rootView.findViewById(android.R.id.list);
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
@@ -45,20 +46,22 @@ public class UsersFragment extends ListFragment implements SwipeRefreshLayout.On
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ParseQuery<User> query = ParseQuery.getQuery("Users");
+        ParseQuery<ParseUser> query = ParseUser.getQuery();
 
         final ProgressDialog progressDialog = new ProgressDialog(getContext());
         progressDialog.setTitle("Por favor espere");
         progressDialog.setMessage("A receber utilizadores.");
         progressDialog.show();
 
-        query.findInBackground(new FindCallback<User>() {
+        query.findInBackground(new FindCallback<ParseUser>() {
             @Override
-            public void done(List<User> usersList, ParseException error) {
+            public void done(List<ParseUser> usersList, ParseException error) {
                 if (error == null) {
-                    //NoButtonListAdapter adapter = new RouteListAdapter(getContext(), R.layout.custom_line_list_view, usersList);
 
-                    //users_list.setAdapter(adapter);
+                    Log.d("cenas", usersList.toString());
+
+                    UserListAdapter adapter = new UserListAdapter(getContext(), R.layout.custom_line_list_view, usersList);
+                    users_list.setAdapter(adapter);
 
                     progressDialog.dismiss();
 
