@@ -1,6 +1,7 @@
 package joao.splitride.app.main;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -279,7 +280,7 @@ public class MainActivity extends AppCompatActivity
 
         boolean calendars = false;
 
-        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);;
         String userID = sharedPreferences.getString("userID", "");
 
         ParseQuery<UsersByCalendars> query = ParseQuery.getQuery("UsersByCalendar");

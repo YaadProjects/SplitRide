@@ -1,5 +1,6 @@
 package joao.splitride.app.settings;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -75,8 +76,10 @@ public class AddEditCalendar extends AppCompatActivity implements View.OnClickLi
                     usersByCalendars.setCalendarID(calendar.getObjectId());
                     usersByCalendars.setDefault(default_calendar);
 
-                    final SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+                    final SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
+
                     String userID = sharedPreferences.getString("userID", "");
+
                     usersByCalendars.setUserID(userID);
 
                     usersByCalendars.saveInBackground(new SaveCallback() {
