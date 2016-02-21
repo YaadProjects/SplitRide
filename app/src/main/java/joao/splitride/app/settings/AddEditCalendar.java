@@ -1,6 +1,7 @@
 package joao.splitride.app.settings;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +16,7 @@ import com.parse.ParseException;
 import com.parse.SaveCallback;
 
 import joao.splitride.R;
+import joao.splitride.app.custom.NoButtonListAdapter;
 import joao.splitride.app.entities.Calendars;
 import joao.splitride.app.entities.UsersByCalendars;
 
@@ -26,6 +28,8 @@ public class AddEditCalendar extends AppCompatActivity implements View.OnClickLi
     private Button ok, cancel;
     private EditText name;
     private CheckBox checkBox;
+    private Intent editCalendar;
+    private String calendarID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +44,19 @@ public class AddEditCalendar extends AppCompatActivity implements View.OnClickLi
 
         ok = (Button) findViewById(R.id.ok);
         cancel = (Button) findViewById(R.id.cancel);
+
+        editCalendar = getIntent();
+
+        if(editCalendar.getStringExtra("name") != null){
+
+            ok.setText(R.string.edit);
+
+            name.setText(""+editCalendar.getStringExtra("name"));
+            calendarID = editCalendar.getStringExtra("id");
+
+        }else{
+            ok.setText(R.string.add);
+        }
 
         ok.setOnClickListener(this);
         cancel.setOnClickListener(this);

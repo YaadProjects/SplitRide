@@ -248,11 +248,14 @@ public class MainActivity extends AppCompatActivity
 
         Segments segment = (Segments) getSupportFragmentManager().findFragmentByTag("SEGMENTS");
         RoutesFragment route = (RoutesFragment) getSupportFragmentManager().findFragmentByTag("ROUTES");
+        MyCalendarsFragment myCalendars = (MyCalendarsFragment) getSupportFragmentManager().findFragmentByTag("CALENDARS");
 
         if (segment != null && segment.isVisible()) {
             segments.removeOnClickHandler(v);
         }else if(route != null && route.isVisible()){
             routesFragment.removeOnClickHandler(v);
+        }else if(myCalendars != null && myCalendars.isVisible()){
+            calendarsFragment.removeOnClickHandler(v);
         }
 
     }
@@ -265,11 +268,14 @@ public class MainActivity extends AppCompatActivity
 
         Segments segment = (Segments) getSupportFragmentManager().findFragmentByTag("SEGMENTS");
         RoutesFragment route = (RoutesFragment) getSupportFragmentManager().findFragmentByTag("ROUTES");
+        MyCalendarsFragment myCalendars = (MyCalendarsFragment) getSupportFragmentManager().findFragmentByTag("CALENDARS");
 
         if (segment != null && segment.isVisible()) {
             segments.editOnClickHandler(v);
         }else if(route != null && route.isVisible()){
             routesFragment.editOnClickHandler(v);
+        }else if(myCalendars != null && myCalendars.isVisible()){
+            calendarsFragment.editOnClickHandler(v);
         }
     }
 

@@ -1,7 +1,10 @@
 package joao.splitride.app.fragments;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -14,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 
@@ -21,7 +25,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import joao.splitride.R;
+import joao.splitride.app.custom.CalendarListAdapter;
+import joao.splitride.app.entities.Calendars;
+import joao.splitride.app.entities.ComposedRoute;
+import joao.splitride.app.entities.Route;
+import joao.splitride.app.entities.Segment;
 import joao.splitride.app.entities.UsersByCalendars;
+import joao.splitride.app.settings.AddEditCalendar;
+import joao.splitride.app.settings.AddEditRoute;
 
 /**
  * Created by Joao on 17-01-2016.
@@ -40,7 +51,7 @@ public class MyCalendarsFragment extends ListFragment implements SwipeRefreshLay
         calendars_list = (ListView) rootView.findViewById(android.R.id.list);
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
 
-        SharedPreferences sharedPreferences = this.getActivity().getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = this.getActivity().getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
         userID = sharedPreferences.getString("userID", "");
 
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -66,13 +77,24 @@ public class MyCalendarsFragment extends ListFragment implements SwipeRefreshLay
             public void done(List<UsersByCalendars> calendarsList, ParseException error) {
                 if (error == null) {
 
-                    ArrayList<String> calendarID = new ArrayList<String>();
+                    ArrayList<Calendars> calendarID = new ArrayList<Calendars>();
 
-                    for(UsersByCalendars calendar : calendarsList){
-                        calendarID.add(calendar.getCalendarID());
+                    for (UsersByCalendars calendar : calendarsList) {
+
+                        ParseQuery<Calendars> cal_query = ParseQuery.getQuery("Calendars");
+                        cal_query.whereEqualTo("objectId", calendar.getCalendarID());
+
+                        try {
+
+                            calendarID.add(cal_query.getFirst());
+
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
                     }
 
-                    ArrayAdapter adapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_1, calendarID);
+                    CalendarListAdapter adapter = new CalendarListAdapter(getContext(), R.layout.custom_line_list_view, calendarID);
                     calendars_list.setAdapter(adapter);
 
                     progressDialog.dismiss();
@@ -95,21 +117,111 @@ public class MyCalendarsFragment extends ListFragment implements SwipeRefreshLay
             public void done(List<UsersByCalendars> calendarsList, ParseException error) {
                 if (error == null) {
 
-                    ArrayList<String> calendarID = new ArrayList<String>();
+                    ArrayList<Calendars> calendarID = new ArrayList<Calendars>();
 
                     for(UsersByCalendars calendar : calendarsList){
-                        calendarID.add(calendar.getCalendarID());
+
+                        ParseQuery<Calendars> cal_query = ParseQuery.getQuery("Calendars");
+                        cal_query.whereEqualTo("objectId", calendar.getCalendarID());
+
+                        try {
+
+                            calendarID.add(cal_query.getFirst());
+
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
                     }
 
-                    ArrayAdapter adapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_1, calendarID);
-
+                    CalendarListAdapter adapter = new CalendarListAdapter(getContext(), R.layout.custom_line_list_view, calendarID);
                     calendars_list.setAdapter(adapter);
-                    swipeRefreshLayout.setRefreshing(false);
 
                 } else {
-                    Log.d("Error", error.getMessage());
+                    Log.d("score", "Error: " + error.getMessage());
                 }
             }
         });
     }
+
+    public void removeOnClickHandler(View v) {
+
+        final Calendars calendar = (Calendars) v.getTag();
+
+        AlertDialog dialog = new AlertDialog.Builder(getContext()).create();
+        dialog.setTitle("Delete route");
+        dialog.setMessage("Are you sure you want to delete this calendar?");
+        dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // TODO Auto-generated method stub
+                ParseQuery<Calendars> query = ParseQuery.getQuery("Calendars");
+                query.whereEqualTo("objectId", calendar.getObjectId());
+
+                Log.d("cenas", calendar.getObjectId());
+
+                query.getFirstInBackground(new GetCallback<Calendars>() {
+                    @Override
+                    public void done(Calendars object, ParseException e) {
+                        if (e == null) {
+
+                            ParseQuery<UsersByCalendars> query2 = ParseQuery.getQuery("UsersByCalendar");
+                            query2.whereEqualTo("CalendarID", object.getObjectId());
+
+                            Log.d("cenas", calendar.getObjectId());
+
+                            query2.findInBackground(new FindCallback<UsersByCalendars>() {
+                                @Override
+                                public void done(List<UsersByCalendars> objects, ParseException e) {
+                                    if (e == null) {
+
+                                        for (UsersByCalendars uc : objects) {
+                                            uc.deleteInBackground();
+                                        }
+                                    }
+                                }
+                            });
+
+                            object.deleteInBackground();
+                            onRefresh();
+                        } else {
+                            // something went wrong
+                            //Snackbar.make(parentLayout, getResources().getString(R.string.all_fields_mandatory), Snackbar.LENGTH_LONG)
+                            //        .show();
+                            Log.d("Error", e.getMessage().toString());
+                        }
+                    }
+                });
+
+            }
+        });
+
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // TODO Auto-generated method stub
+
+            }
+        });
+
+        dialog.show();
+
+    }
+
+    public void editOnClickHandler(View v){
+
+        final Calendars calendars = (Calendars) v.getTag();
+
+        final Intent intent = new Intent(getActivity(), AddEditCalendar.class);
+        intent.putExtra("id", calendars.getObjectId());
+        intent.putExtra("name", calendars.getName());
+
+        startActivity(intent);
+
+
+
+    }
+
 }
