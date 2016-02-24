@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.parse.FindCallback;
@@ -27,12 +26,8 @@ import java.util.List;
 import joao.splitride.R;
 import joao.splitride.app.custom.CalendarListAdapter;
 import joao.splitride.app.entities.Calendars;
-import joao.splitride.app.entities.ComposedRoute;
-import joao.splitride.app.entities.Route;
-import joao.splitride.app.entities.Segment;
 import joao.splitride.app.entities.UsersByCalendars;
 import joao.splitride.app.settings.AddEditCalendar;
-import joao.splitride.app.settings.AddEditRoute;
 
 /**
  * Created by Joao on 17-01-2016.
@@ -136,6 +131,7 @@ public class MyCalendarsFragment extends ListFragment implements SwipeRefreshLay
 
                     CalendarListAdapter adapter = new CalendarListAdapter(getContext(), R.layout.custom_line_list_view, calendarID);
                     calendars_list.setAdapter(adapter);
+                    swipeRefreshLayout.setRefreshing(false);
 
                 } else {
                     Log.d("score", "Error: " + error.getMessage());
@@ -159,8 +155,6 @@ public class MyCalendarsFragment extends ListFragment implements SwipeRefreshLay
                 ParseQuery<Calendars> query = ParseQuery.getQuery("Calendars");
                 query.whereEqualTo("objectId", calendar.getObjectId());
 
-                Log.d("cenas", calendar.getObjectId());
-
                 query.getFirstInBackground(new GetCallback<Calendars>() {
                     @Override
                     public void done(Calendars object, ParseException e) {
@@ -168,8 +162,6 @@ public class MyCalendarsFragment extends ListFragment implements SwipeRefreshLay
 
                             ParseQuery<UsersByCalendars> query2 = ParseQuery.getQuery("UsersByCalendar");
                             query2.whereEqualTo("CalendarID", object.getObjectId());
-
-                            Log.d("cenas", calendar.getObjectId());
 
                             query2.findInBackground(new FindCallback<UsersByCalendars>() {
                                 @Override
@@ -218,8 +210,32 @@ public class MyCalendarsFragment extends ListFragment implements SwipeRefreshLay
         intent.putExtra("id", calendars.getObjectId());
         intent.putExtra("name", calendars.getName());
 
-        startActivity(intent);
 
+        ParseQuery<UsersByCalendars> query = ParseQuery.getQuery("UsersByCalendar");
+        query.whereEqualTo("CalendarID", calendars.getObjectId());
+
+        query.findInBackground(new FindCallback<UsersByCalendars>() {
+            @Override
+            public void done(List<UsersByCalendars> objects, ParseException e) {
+
+                if (e == null) {
+
+                    SharedPreferences sharedPreferences = getActivity().getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
+                    String userID = sharedPreferences.getString("userID", "");
+
+                    for (UsersByCalendars uc : objects) {
+
+                        if (uc.getUserID().equalsIgnoreCase(userID))
+                            intent.putExtra("default", uc.getDefault());
+                    }
+
+                    startActivity(intent);
+
+                } else {
+                    Log.d("Error", e.getMessage());
+                }
+            }
+        });
 
 
     }

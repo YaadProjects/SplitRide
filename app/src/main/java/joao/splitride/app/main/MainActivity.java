@@ -36,6 +36,7 @@ import joao.splitride.app.login.DispatchActivity;
 import joao.splitride.app.settings.AddEditCalendar;
 import joao.splitride.app.settings.AddEditRoute;
 import joao.splitride.app.settings.AddEditSegment;
+import joao.splitride.app.settings.SearchUsers;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity
                 Segments segments_frag = (Segments) getSupportFragmentManager().findFragmentByTag("SEGMENTS");
                 RoutesFragment routes_frag = (RoutesFragment) getSupportFragmentManager().findFragmentByTag("ROUTES");
                 MyCalendarsFragment calendars_frag = (MyCalendarsFragment) getSupportFragmentManager().findFragmentByTag("CALENDARS");
+                UsersFragment users_frag = (UsersFragment) getSupportFragmentManager().findFragmentByTag("PERSONS");
 
                 if (segments_frag != null && segments_frag.isVisible()) {
                     Intent intent = new Intent(MainActivity.this, AddEditSegment.class);
@@ -70,6 +72,9 @@ public class MainActivity extends AppCompatActivity
                     startActivity(intent);
                 }else if(calendars_frag != null && calendars_frag.isVisible()){
                     Intent intent = new Intent(MainActivity.this, AddEditCalendar.class);
+                    startActivity(intent);
+                } else if (users_frag != null && users_frag.isVisible()) {
+                    Intent intent = new Intent(MainActivity.this, SearchUsers.class);
                     startActivity(intent);
                 }
                 else Log.d("frag", "calendar");
@@ -286,7 +291,7 @@ public class MainActivity extends AppCompatActivity
 
         boolean calendars = false;
 
-        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);;
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
         String userID = sharedPreferences.getString("userID", "");
 
         ParseQuery<UsersByCalendars> query = ParseQuery.getQuery("UsersByCalendar");

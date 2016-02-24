@@ -20,7 +20,7 @@
             android:title="My Calendars" />
     </group>
 
-    <item android:title="Settings">
+    <item android:title="Calendar settings">
         <menu>
             <item
                 android:id="@+id/nav_segments"

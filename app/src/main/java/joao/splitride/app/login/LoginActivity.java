@@ -26,10 +26,10 @@ import joao.splitride.app.main.MainActivity;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
+    private static final String EMAIL_PATTERN = "^[a-zA-Z0-9#_~!$&'()*+,;=:.\"(),:;<>@\\[\\]\\\\]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*$";
     private Button login, register, cancel;
     private TextInputLayout usernameWrapper, emailWrapper, passwordWrapper;
     private LinearLayout parentLayout;
-    private static final String EMAIL_PATTERN = "^[a-zA-Z0-9#_~!$&'()*+,;=:.\"(),:;<>@\\[\\]\\\\]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*$";
     private Pattern pattern = Pattern.compile(EMAIL_PATTERN);
     private Matcher matcher;
 
@@ -165,7 +165,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         progressDialog.show();
 
 
-        ParseUser user = new ParseUser();
+        final ParseUser user = new ParseUser();
         user.put("username", username);
         user.put("password", password);
         user.put("email", email);
@@ -180,6 +180,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     .show(); // Don’t forget to show!
                 } else {
                     // Start an intent for the dispatch activity
+                    SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("userID", user.getObjectId());
+                    editor.commit();
+
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);

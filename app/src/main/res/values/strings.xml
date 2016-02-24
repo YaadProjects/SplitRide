@@ -86,4 +86,5 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_trips_in_date">Trips at this date</string>
+    <string name="title_activity_search_users">SearchUsers</string>
 </resources>
