@@ -23,7 +23,6 @@ public class SearchUserListAdapter extends ArrayAdapter<ParseUser> {
     private int layoutResourceId;
     private Context context;
 
-
     public SearchUserListAdapter(Context context, int layoutResourceId, List<ParseUser> items) {
         super(context, layoutResourceId, items);
 
@@ -45,6 +44,7 @@ public class SearchUserListAdapter extends ArrayAdapter<ParseUser> {
         holder.user = items.get(position);
         holder.checkbox = (CheckBox) row.findViewById(R.id.user_checkbox);
         holder.checkbox.setTag(holder.user);
+
 
         holder.name = (TextView) row.findViewById(R.id.line_name);
 
