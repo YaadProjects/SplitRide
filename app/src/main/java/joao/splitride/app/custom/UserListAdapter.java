@@ -36,17 +36,15 @@ public class UserListAdapter extends ArrayAdapter<ParseUser> {
 	public View getView(int position, View convertView, ViewGroup parent){
 		
 		View row = convertView;
-		SegmentHolder holder = null;
+		UserHolder holder = null;
 		
 		LayoutInflater inflater = ((Activity) context).getLayoutInflater();
 		row = inflater.inflate(layoutResourceId, parent, false);
 
-		holder = new SegmentHolder();
+		holder = new UserHolder();
 		holder.user = items.get(position);
-		holder.edit_segment = (ImageButton)row.findViewById(R.id.edit);
-		holder.remove_segment = (ImageButton)row.findViewById(R.id.remove);
-		holder.edit_segment.setTag(holder.user);
-		holder.remove_segment.setTag(holder.user);
+		holder.remove_user = (ImageButton) row.findViewById(R.id.remove);
+		holder.remove_user.setTag(holder.user);
 		
 		holder.name = (TextView)row.findViewById(R.id.line_name);
 
@@ -56,15 +54,14 @@ public class UserListAdapter extends ArrayAdapter<ParseUser> {
 		
 		return row;
 	}
-	
-	private void setupItem(SegmentHolder holder) {
+
+	private void setupItem(UserHolder holder) {
 		holder.name.setText(""+holder.user.getUsername());
 	}
-	
-	public static class SegmentHolder{
+
+	public static class UserHolder {
 		ParseUser user;
 		TextView name;
-		ImageButton edit_segment;
-		ImageButton remove_segment;
+		ImageButton remove_user;
 	}	
 }

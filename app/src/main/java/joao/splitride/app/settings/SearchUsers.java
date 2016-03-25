@@ -3,11 +3,11 @@ package joao.splitride.app.settings;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -18,15 +18,20 @@ import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import joao.splitride.R;
 import joao.splitride.app.custom.SearchUserListAdapter;
+import joao.splitride.app.entities.UsersByCalendars;
 
 public class SearchUsers extends AppCompatActivity implements View.OnClickListener {
 
     private ListView users_list;
     private Button ok, cancel;
+    private SearchUserListAdapter myAdapter;
+    private ArrayList<String> currentCalendarUsers = new ArrayList<String>();
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +46,44 @@ public class SearchUsers extends AppCompatActivity implements View.OnClickListen
         cancel = (Button) findViewById(R.id.cancel_button);
 
         users_list = (ListView) findViewById(R.id.search_list);
-        // Get the intent, verify the action and get the query
+
+        sharedPreferences = this.getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
+
+        ParseQuery<UsersByCalendars> usersByCalendarsQuery = ParseQuery.getQuery("UsersByCalendar");
+        usersByCalendarsQuery.whereEqualTo("CalendarID", sharedPreferences.getString("calendarID", ""));
+
+        usersByCalendarsQuery.findInBackground(new FindCallback<UsersByCalendars>() {
+            @Override
+            public void done(List<UsersByCalendars> objects, ParseException e) {
+
+                for (UsersByCalendars usersByCalendars : objects) {
+                    currentCalendarUsers.add(usersByCalendars.getUserID());
+                }
+
+                ParseQuery<ParseUser> query_users = ParseUser.getQuery();
+
+                query_users.findInBackground(new FindCallback<ParseUser>() {
+                    @Override
+                    public void done(List<ParseUser> objects, ParseException e) {
+                        ArrayList<ParseUser> searchableUsers = new ArrayList<ParseUser>();
+
+                        for (ParseUser user : objects) {
+
+                            if (!currentCalendarUsers.contains(user.getObjectId())) {
+                                searchableUsers.add(user);
+                            }
+                        }
+
+                        myAdapter = new SearchUserListAdapter(SearchUsers.this, R.layout.custom_line_list_view_checkbox, searchableUsers);
+
+                        // assign the list adapter
+                        users_list.setAdapter(myAdapter);
+                    }
+                });
+
+            }
+        });
+
         Intent intent = getIntent();
         handleIntent(intent);
 
@@ -67,6 +109,7 @@ public class SearchUsers extends AppCompatActivity implements View.OnClickListen
     }
 
     public void onNewIntent(Intent intent) {
+
         setIntent(intent);
         handleIntent(intent);
     }
@@ -80,6 +123,7 @@ public class SearchUsers extends AppCompatActivity implements View.OnClickListen
             query_users.whereContains("username", query);
 
             query_users.setCachePolicy(ParseQuery.CachePolicy.NETWORK_ONLY);
+
             query_users.findInBackground(new FindCallback<ParseUser>() {
                 @Override
                 public void done(List<ParseUser> objects, ParseException e) {
@@ -87,9 +131,8 @@ public class SearchUsers extends AppCompatActivity implements View.OnClickListen
                     if (e == null) {
 
                         // initiate the listadapter
-                        SearchUserListAdapter myAdapter = new SearchUserListAdapter(SearchUsers.this, R.layout.custom_line_list_view_checkbox, objects);
+                        myAdapter = new SearchUserListAdapter(SearchUsers.this, R.layout.custom_line_list_view_checkbox, objects);
 
-                        Log.d("passei", "aqui");
                         // assign the list adapter
                         users_list.setAdapter(myAdapter);
                     }
@@ -105,8 +148,17 @@ public class SearchUsers extends AppCompatActivity implements View.OnClickListen
         switch (v.getId()) {
 
             case R.id.ok_button:
-                Log.d("ok", "" + users_list.getCheckedItemPositions());
-                Log.d("ok", "" + users_list.getCheckedItemIds().length);
+
+                for (ParseUser user : myAdapter.selected) {
+                    UsersByCalendars newUser = new UsersByCalendars();
+                    newUser.setDefault(false);
+                    newUser.setCalendarID(sharedPreferences.getString("calendarID", ""));
+                    newUser.setUserID(user.getObjectId());
+
+                    newUser.saveInBackground();
+                }
+
+                finish();
 
                 break;
 

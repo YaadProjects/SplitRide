@@ -32,10 +32,12 @@ import joao.splitride.app.fragments.MyCalendarsFragment;
 import joao.splitride.app.fragments.RoutesFragment;
 import joao.splitride.app.fragments.Segments;
 import joao.splitride.app.fragments.UsersFragment;
+import joao.splitride.app.fragments.VehiclesFragment;
 import joao.splitride.app.login.DispatchActivity;
 import joao.splitride.app.settings.AddEditCalendar;
 import joao.splitride.app.settings.AddEditRoute;
 import joao.splitride.app.settings.AddEditSegment;
+import joao.splitride.app.settings.AddEditVehicle;
 import joao.splitride.app.settings.SearchUsers;
 
 public class MainActivity extends AppCompatActivity
@@ -46,6 +48,7 @@ public class MainActivity extends AppCompatActivity
     private RoutesFragment routesFragment;
     private UsersFragment usersFragment;
     private MyCalendarsFragment calendarsFragment;
+    private VehiclesFragment vehiclesFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +66,7 @@ public class MainActivity extends AppCompatActivity
                 RoutesFragment routes_frag = (RoutesFragment) getSupportFragmentManager().findFragmentByTag("ROUTES");
                 MyCalendarsFragment calendars_frag = (MyCalendarsFragment) getSupportFragmentManager().findFragmentByTag("CALENDARS");
                 UsersFragment users_frag = (UsersFragment) getSupportFragmentManager().findFragmentByTag("PERSONS");
+                VehiclesFragment vehicles_frag = (VehiclesFragment) getSupportFragmentManager().findFragmentByTag("VEHICLES");
 
                 if (segments_frag != null && segments_frag.isVisible()) {
                     Intent intent = new Intent(MainActivity.this, AddEditSegment.class);
@@ -75,6 +79,9 @@ public class MainActivity extends AppCompatActivity
                     startActivity(intent);
                 } else if (users_frag != null && users_frag.isVisible()) {
                     Intent intent = new Intent(MainActivity.this, SearchUsers.class);
+                    startActivity(intent);
+                } else if (vehicles_frag != null && vehicles_frag.isVisible()) {
+                    Intent intent = new Intent(MainActivity.this, AddEditVehicle.class);
                     startActivity(intent);
                 }
                 else Log.d("frag", "calendar");
@@ -143,15 +150,19 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if(id == R.id.nav_home){
-            /*routesFragment = new RoutesFragment();
 
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            CaldroidFragment caldroidFragment = new CaldroidFragment();
+            Bundle args = new Bundle();
 
-            transaction.replace(R.id.calendar1, routesFragment, "CALENDAR");
-            transaction.addToBackStack(null);
+            Calendar cal = Calendar.getInstance();
+            args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
+            args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));
+            caldroidFragment.setArguments(args);
 
-            // Commit the transaction
-            transaction.commit();*/
+            FragmentTransaction t = getSupportFragmentManager().beginTransaction();
+            t.replace(R.id.calendar1, caldroidFragment);
+            t.commit();
+
         }else if (id == R.id.nav_balance) {
 
         }else  if (id == R.id.nav_my_calendars) {
@@ -238,6 +249,31 @@ public class MainActivity extends AppCompatActivity
 
             }
 
+        } else if (id == R.id.nav_vehicles) {
+
+            if (hasCalendars()) {
+                vehiclesFragment = new VehiclesFragment();
+
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+                transaction.replace(R.id.calendar1, vehiclesFragment, "VEHICLES");
+                transaction.addToBackStack(null);
+
+                // Commit the transaction
+                transaction.commit();
+            } else {
+                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+
+                alertDialog.setTitle("Error");
+                alertDialog.setMessage("You have no calendars set. Please go to the My Calendars and create one.");
+                alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+                alertDialog.show();
+
+            }
+
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -254,6 +290,8 @@ public class MainActivity extends AppCompatActivity
         Segments segment = (Segments) getSupportFragmentManager().findFragmentByTag("SEGMENTS");
         RoutesFragment route = (RoutesFragment) getSupportFragmentManager().findFragmentByTag("ROUTES");
         MyCalendarsFragment myCalendars = (MyCalendarsFragment) getSupportFragmentManager().findFragmentByTag("CALENDARS");
+        UsersFragment users = (UsersFragment) getSupportFragmentManager().findFragmentByTag("PERSONS");
+        VehiclesFragment vehicles = (VehiclesFragment) getSupportFragmentManager().findFragmentByTag("VEHICLES");
 
         if (segment != null && segment.isVisible()) {
             segments.removeOnClickHandler(v);
@@ -261,6 +299,10 @@ public class MainActivity extends AppCompatActivity
             routesFragment.removeOnClickHandler(v);
         }else if(myCalendars != null && myCalendars.isVisible()){
             calendarsFragment.removeOnClickHandler(v);
+        } else if (users != null && users.isVisible()) {
+            usersFragment.removeOnClickHandler(v);
+        } else if (vehicles != null && vehicles.isVisible()) {
+            vehiclesFragment.removeOnClickHandler(v);
         }
 
     }
@@ -274,6 +316,7 @@ public class MainActivity extends AppCompatActivity
         Segments segment = (Segments) getSupportFragmentManager().findFragmentByTag("SEGMENTS");
         RoutesFragment route = (RoutesFragment) getSupportFragmentManager().findFragmentByTag("ROUTES");
         MyCalendarsFragment myCalendars = (MyCalendarsFragment) getSupportFragmentManager().findFragmentByTag("CALENDARS");
+        VehiclesFragment vehicles = (VehiclesFragment) getSupportFragmentManager().findFragmentByTag("VEHICLES");
 
         if (segment != null && segment.isVisible()) {
             segments.editOnClickHandler(v);
@@ -281,6 +324,8 @@ public class MainActivity extends AppCompatActivity
             routesFragment.editOnClickHandler(v);
         }else if(myCalendars != null && myCalendars.isVisible()){
             calendarsFragment.editOnClickHandler(v);
+        } else if (vehicles != null && vehicles.isVisible()) {
+            vehiclesFragment.editOnClickHandler(v);
         }
     }
 

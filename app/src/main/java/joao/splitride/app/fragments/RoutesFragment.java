@@ -82,7 +82,7 @@ public class RoutesFragment extends ListFragment implements SwipeRefreshLayout.O
     @Override
     public void onRefresh() {
         ParseQuery<Route> query = ParseQuery.getQuery("Routes");
-        query.setCachePolicy(ParseQuery.CachePolicy.CACHE_THEN_NETWORK);
+
         query.findInBackground(new FindCallback<Route>() {
             @Override
             public void done(List<Route> routesList, ParseException error) {
