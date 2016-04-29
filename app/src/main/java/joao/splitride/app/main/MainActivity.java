@@ -28,6 +28,7 @@ import java.util.Calendar;
 
 import joao.splitride.R;
 import joao.splitride.app.entities.UsersByCalendars;
+import joao.splitride.app.fragments.MovementsFragment;
 import joao.splitride.app.fragments.MyCalendarsFragment;
 import joao.splitride.app.fragments.RoutesFragment;
 import joao.splitride.app.fragments.Segments;
@@ -35,6 +36,7 @@ import joao.splitride.app.fragments.UsersFragment;
 import joao.splitride.app.fragments.VehiclesFragment;
 import joao.splitride.app.login.DispatchActivity;
 import joao.splitride.app.settings.AddEditCalendar;
+import joao.splitride.app.settings.AddEditMovements;
 import joao.splitride.app.settings.AddEditRoute;
 import joao.splitride.app.settings.AddEditSegment;
 import joao.splitride.app.settings.AddEditVehicle;
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity
     private UsersFragment usersFragment;
     private MyCalendarsFragment calendarsFragment;
     private VehiclesFragment vehiclesFragment;
+    private MovementsFragment movementsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +70,7 @@ public class MainActivity extends AppCompatActivity
                 MyCalendarsFragment calendars_frag = (MyCalendarsFragment) getSupportFragmentManager().findFragmentByTag("CALENDARS");
                 UsersFragment users_frag = (UsersFragment) getSupportFragmentManager().findFragmentByTag("PERSONS");
                 VehiclesFragment vehicles_frag = (VehiclesFragment) getSupportFragmentManager().findFragmentByTag("VEHICLES");
+                MovementsFragment movements_frag = (MovementsFragment) getSupportFragmentManager().findFragmentByTag("MOVEMENTS");
 
                 if (segments_frag != null && segments_frag.isVisible()) {
                     Intent intent = new Intent(MainActivity.this, AddEditSegment.class);
@@ -82,6 +86,9 @@ public class MainActivity extends AppCompatActivity
                     startActivity(intent);
                 } else if (vehicles_frag != null && vehicles_frag.isVisible()) {
                     Intent intent = new Intent(MainActivity.this, AddEditVehicle.class);
+                    startActivity(intent);
+                } else if (movements_frag != null && movements_frag.isVisible()) {
+                    Intent intent = new Intent(MainActivity.this, AddEditMovements.class);
                     startActivity(intent);
                 }
                 else Log.d("frag", "calendar");
@@ -163,8 +170,6 @@ public class MainActivity extends AppCompatActivity
             t.replace(R.id.calendar1, caldroidFragment);
             t.commit();
 
-        }else if (id == R.id.nav_balance) {
-
         }else  if (id == R.id.nav_my_calendars) {
 
             calendarsFragment = new MyCalendarsFragment();
@@ -178,8 +183,28 @@ public class MainActivity extends AppCompatActivity
             transaction.commit();
 
 
-        }else if (id == R.id.nav_transactions) {
+        } else if (id == R.id.nav_movements) {
+            if (hasCalendars()) {
+                movementsFragment = new MovementsFragment();
 
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+                transaction.replace(R.id.calendar1, movementsFragment, "MOVEMENTS");
+                transaction.addToBackStack(null);
+
+                // Commit the transaction
+                transaction.commit();
+            } else {
+                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+
+                alertDialog.setTitle("Error");
+                alertDialog.setMessage("You have no calendars set. Please go to the My Calendars and create one.");
+                alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+                alertDialog.show();
+            }
         } else if (id == R.id.nav_routes) {
             if(hasCalendars()){
                 routesFragment = new RoutesFragment();

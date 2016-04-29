@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
@@ -67,7 +66,6 @@ public class AddEditVehicle extends AppCompatActivity implements OnClickListener
             consumption.setText("" + editVehicle.getDoubleExtra("consumption", 0.0));
 
             ArrayAdapter<String> arrayadapter = new ArrayAdapter<String>(AddEditVehicle.this, android.R.layout.simple_dropdown_item_1line, editVehicle.getStringArrayListExtra("usernames"));
-            Log.d("cenas", "" + arrayadapter.getPosition(editVehicle.getStringExtra("owner")));
 
             owner.setAdapter(arrayadapter);
             owner.setSelection(arrayadapter.getPosition(editVehicle.getStringExtra("owner")));
@@ -131,7 +129,8 @@ public class AddEditVehicle extends AppCompatActivity implements OnClickListener
                 } else {
                     if (ok.getText().toString().equalsIgnoreCase("add"))
                         saveVehicle(vehicle_name, Double.parseDouble(vehicle_consumption), owner_username);
-                    //else editRoute(route_name);
+                    else
+                        editVehicle(vehicle_name, Double.parseDouble(vehicle_consumption), owner_username);
                 }
 
                 break;
@@ -146,32 +145,85 @@ public class AddEditVehicle extends AppCompatActivity implements OnClickListener
     public void saveVehicle(String name, double consumption, String username) {
 
 
-        ParseQuery<ParseUser> query_users = ParseUser.getQuery();
+        ParseQuery<Vehicle> query_vehicle = ParseQuery.getQuery("Vehicles");
+        query_vehicle.whereEqualTo("VehicleName", name);
+        query_vehicle.whereEqualTo("CalendarID", sharedPreferences.getString("calendarID", ""));
+
         try {
-            query_users.whereEqualTo("username", username);
-            ParseUser owner = query_users.getFirst();
 
-            Vehicle vehicle = new Vehicle();
-            vehicle.setVehicleName(name);
-            vehicle.setVehicleConsumption(consumption);
-            vehicle.setUserID(owner.getObjectId());
-            vehicle.setCalendarID(sharedPreferences.getString("calendarID", ""));
+            Vehicle veh = query_vehicle.getFirst();
 
-            vehicle.saveInBackground();
-            finish();
+            if (veh != null)
+                Snackbar.make(parentLayout, "This vehicle name has already in use. Please pick another.", Snackbar.LENGTH_LONG).show();
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (ParseException e) {
+
+            if (e.getCode() == 101) {
+                ParseQuery<ParseUser> query_users = ParseUser.getQuery();
+                query_users.whereEqualTo("username", username);
+
+                try {
+                    ParseUser owner = query_users.getFirst();
+
+                    Vehicle vehicle = new Vehicle();
+                    vehicle.setVehicleName(name);
+                    vehicle.setVehicleConsumption(consumption);
+                    vehicle.setUserID(owner.getObjectId());
+                    vehicle.setCalendarID(sharedPreferences.getString("calendarID", ""));
+
+                    vehicle.saveInBackground();
+                    finish();
+
+                } catch (ParseException e1) {
+                    e1.printStackTrace();
+                }
+            } else e.printStackTrace();
+
         }
-
 
     }
 
-    private void editVehicle(String name) {
+    private void editVehicle(String name, double consumption, String owner) {
 
-        ParseQuery<Vehicle> query = ParseQuery.getQuery("Vehicles");
+        ParseQuery<Vehicle> query_vehicle = ParseQuery.getQuery("Vehicles");
 
+        query_vehicle.whereEqualTo("VehicleName", name);
+        query_vehicle.whereEqualTo("CalendarID", sharedPreferences.getString("calendarID", ""));
 
+        try {
+
+            Vehicle veh = query_vehicle.getFirst();
+
+            if (veh != null)
+                Snackbar.make(parentLayout, "This vehicle name has already in use. Please pick another.", Snackbar.LENGTH_LONG).show();
+
+        } catch (ParseException e) {
+
+            if (e.getCode() == 101) {
+
+                Vehicle vehicle = new Vehicle();
+
+                vehicle.setObjectId(vehicle_id);
+                vehicle.setVehicleName(name);
+                vehicle.setVehicleConsumption(consumption);
+
+                ParseQuery<ParseUser> query_users = ParseUser.getQuery();
+                query_users.whereEqualTo("username", owner);
+
+                try {
+                    ParseUser user = query_users.getFirst();
+
+                    vehicle.setUserID(user.getObjectId());
+
+                    vehicle.saveInBackground();
+                    finish();
+                } catch (ParseException e2) {
+                    e2.printStackTrace();
+                }
+
+            } else e.printStackTrace();
+
+        }
     }
 
 

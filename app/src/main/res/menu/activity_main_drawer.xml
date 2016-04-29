@@ -7,13 +7,9 @@
             android:icon="@drawable/ic_home"
             android:title="Home" />
         <item
-            android:id="@+id/nav_balance"
-            android:icon="@drawable/ic_balance"
-            android:title="Balance" />
-        <item
-            android:id="@+id/nav_transactions"
-            android:icon="@drawable/ic_transactions"
-            android:title="Transactions" />
+            android:id="@+id/nav_movements"
+            android:icon="@drawable/ic_movements"
+            android:title="Movements" />
         <item
             android:id="@+id/nav_my_calendars"
             android:icon="@drawable/ic_calendar"

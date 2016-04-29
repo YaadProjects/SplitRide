@@ -28,6 +28,7 @@
     <string name="title_activity_calendar">Calendar</string>
     <string name="title_activity_persons">Persons</string>
     <string name="title_activity_vehicles">Vehicles</string>
+    <string name="title_activity_movements">Movements</string>
     <string name="title_activity_routes">Routes</string>
     <string name="title_activity_segments">Segments</string>
     <string name="title_activity_trips">Trips</string>
