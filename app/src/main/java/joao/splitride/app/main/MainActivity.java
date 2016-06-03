@@ -14,7 +14,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,8 +22,10 @@ import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.roomorama.caldroid.CaldroidFragment;
+import com.roomorama.caldroid.CaldroidListener;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import joao.splitride.R;
 import joao.splitride.app.entities.UsersByCalendars;
@@ -39,6 +40,7 @@ import joao.splitride.app.settings.AddEditCalendar;
 import joao.splitride.app.settings.AddEditMovements;
 import joao.splitride.app.settings.AddEditRoute;
 import joao.splitride.app.settings.AddEditSegment;
+import joao.splitride.app.settings.AddEditTrip;
 import joao.splitride.app.settings.AddEditVehicle;
 import joao.splitride.app.settings.SearchUsers;
 
@@ -74,10 +76,10 @@ public class MainActivity extends AppCompatActivity
 
                 if (segments_frag != null && segments_frag.isVisible()) {
                     Intent intent = new Intent(MainActivity.this, AddEditSegment.class);
-                    startActivity(intent);
+                    startActivityForResult(intent, 1);
                 }else if(routes_frag != null && routes_frag.isVisible()){
                     Intent intent = new Intent(MainActivity.this, AddEditRoute.class);
-                    startActivity(intent);
+                    startActivityForResult(intent, 1);
                 }else if(calendars_frag != null && calendars_frag.isVisible()){
                     Intent intent = new Intent(MainActivity.this, AddEditCalendar.class);
                     startActivity(intent);
@@ -86,12 +88,14 @@ public class MainActivity extends AppCompatActivity
                     startActivity(intent);
                 } else if (vehicles_frag != null && vehicles_frag.isVisible()) {
                     Intent intent = new Intent(MainActivity.this, AddEditVehicle.class);
-                    startActivity(intent);
+                    startActivityForResult(intent, 1);
                 } else if (movements_frag != null && movements_frag.isVisible()) {
                     Intent intent = new Intent(MainActivity.this, AddEditMovements.class);
                     startActivity(intent);
+                } else {
+                    Intent intent = new Intent(MainActivity.this, AddEditTrip.class);
+                    startActivity(intent);
                 }
-                else Log.d("frag", "calendar");
             }
         });
 
@@ -114,6 +118,59 @@ public class MainActivity extends AppCompatActivity
         FragmentTransaction t = getSupportFragmentManager().beginTransaction();
         t.replace(R.id.calendar1, caldroidFragment);
         t.commit();
+
+
+        // Cenas do calendário
+
+
+        final CaldroidListener calendarListener = new CaldroidListener() {
+            @Override
+            public void onSelectDate(Date date, View view) {
+
+                AlertDialog levelDialog;
+
+                // Strings to Show In Dialog with Radio Buttons
+                final CharSequence[] items = {" Easy ", " Medium ", " Hard ", " Very Hard "};
+
+                // Creating and Building the Dialog
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("Select The Difficulty Level");
+                builder.setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int item) {
+
+
+                        switch (item) {
+                            case 0:
+                                // Your code when first option seletced
+                                break;
+                            case 1:
+                                // Your code when 2nd  option seletced
+
+                                break;
+                            case 2:
+                                // Your code when 3rd option seletced
+                                break;
+                            case 3:
+                                // Your code when 4th  option seletced
+                                break;
+
+                        }
+                    }
+                });
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                levelDialog = builder.create();
+                levelDialog.show();
+
+            }
+        };
+
+        // Setup Caldroid
+        caldroidFragment.setCaldroidListener(calendarListener);
 
     }
 
@@ -351,6 +408,21 @@ public class MainActivity extends AppCompatActivity
             calendarsFragment.editOnClickHandler(v);
         } else if (vehicles != null && vehicles.isVisible()) {
             vehiclesFragment.editOnClickHandler(v);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        VehiclesFragment vehicles = (VehiclesFragment) getSupportFragmentManager().findFragmentByTag("VEHICLES");
+        Segments segment = (Segments) getSupportFragmentManager().findFragmentByTag("SEGMENTS");
+        RoutesFragment route = (RoutesFragment) getSupportFragmentManager().findFragmentByTag("ROUTES");
+
+        if (segment != null && segment.isVisible()) {
+            segments.onActivityResult(requestCode, resultCode, data);
+        } else if (route != null && route.isVisible()) {
+            routesFragment.onActivityResult(requestCode, resultCode, data);
+        } else if (vehicles != null && vehicles.isVisible()) {
+            vehiclesFragment.onActivityResult(requestCode, resultCode, data);
         }
     }
 

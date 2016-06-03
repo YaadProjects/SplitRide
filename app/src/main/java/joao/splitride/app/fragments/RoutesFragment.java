@@ -2,8 +2,10 @@ package joao.splitride.app.fragments;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -34,6 +36,7 @@ public class RoutesFragment extends ListFragment implements SwipeRefreshLayout.O
 
     private ListView routes_list;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private SharedPreferences sharedPreferences;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -43,6 +46,7 @@ public class RoutesFragment extends ListFragment implements SwipeRefreshLayout.O
         routes_list = (ListView) rootView.findViewById(android.R.id.list);
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
 
+        sharedPreferences = getActivity().getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
 
         swipeRefreshLayout.setOnRefreshListener(this);
 
@@ -54,6 +58,7 @@ public class RoutesFragment extends ListFragment implements SwipeRefreshLayout.O
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         ParseQuery<Route> query = ParseQuery.getQuery("Routes");
+        query.whereEqualTo("calendarID", sharedPreferences.getString("calendarID", ""));
 
         final ProgressDialog progressDialog = new ProgressDialog(getContext());
         progressDialog.setTitle("Por favor espere");
@@ -82,6 +87,7 @@ public class RoutesFragment extends ListFragment implements SwipeRefreshLayout.O
     @Override
     public void onRefresh() {
         ParseQuery<Route> query = ParseQuery.getQuery("Routes");
+        query.whereEqualTo("calendarID", sharedPreferences.getString("calendarID", ""));
 
         query.findInBackground(new FindCallback<Route>() {
             @Override
@@ -192,7 +198,7 @@ public class RoutesFragment extends ListFragment implements SwipeRefreshLayout.O
                     }
 
                     intent.putExtra("segments", segmentsID);
-                    startActivity(intent);
+                    startActivityForResult(intent, 1);
 
                 } else {
                     Log.d("Erro", error.getMessage());
@@ -200,8 +206,16 @@ public class RoutesFragment extends ListFragment implements SwipeRefreshLayout.O
             }
         });
 
+    }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (resultCode == 1) {
+            swipeRefreshLayout.setRefreshing(true);
+            onRefresh();
+        }
     }
 
 

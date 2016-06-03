@@ -3,8 +3,10 @@ package joao.splitride.app.fragments;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -29,6 +31,7 @@ public class Segments extends ListFragment implements SwipeRefreshLayout.OnRefre
 
     private ListView segments_list;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private SharedPreferences sharedPreferences;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -38,6 +41,7 @@ public class Segments extends ListFragment implements SwipeRefreshLayout.OnRefre
         segments_list = (ListView) rootView.findViewById(android.R.id.list);
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
 
+        sharedPreferences = getActivity().getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
 
         swipeRefreshLayout.setOnRefreshListener(this);
 
@@ -49,6 +53,7 @@ public class Segments extends ListFragment implements SwipeRefreshLayout.OnRefre
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         ParseQuery<Segment> query = ParseQuery.getQuery("Segments");
+        query.whereEqualTo("calendarID", sharedPreferences.getString("calendarID", ""));
 
         final ProgressDialog progressDialog = new ProgressDialog(getContext());
         progressDialog.setTitle("Por favor espere");
@@ -78,6 +83,8 @@ public class Segments extends ListFragment implements SwipeRefreshLayout.OnRefre
     @Override
     public void onRefresh() {
         ParseQuery<Segment> query = ParseQuery.getQuery("Segments");
+        query.whereEqualTo("calendarID", sharedPreferences.getString("calendarID", ""));
+
         query.setCachePolicy(ParseQuery.CachePolicy.CACHE_THEN_NETWORK);
         query.findInBackground(new FindCallback<Segment>() {
             @Override
@@ -152,7 +159,17 @@ public class Segments extends ListFragment implements SwipeRefreshLayout.OnRefre
         intent.putExtra("distance", segment.getDistance());
         intent.putExtra("cost", segment.getCost());
 
-        startActivity(intent);
+        startActivityForResult(intent, 1);
 
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == 1) {
+            swipeRefreshLayout.setRefreshing(true);
+            onRefresh();
+        }
     }
 }

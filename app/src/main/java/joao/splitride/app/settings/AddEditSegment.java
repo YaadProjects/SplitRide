@@ -1,6 +1,8 @@
 package joao.splitride.app.settings;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -30,6 +32,7 @@ public class AddEditSegment extends AppCompatActivity implements View.OnClickLis
     private EditText name, distance, cost;
     private String segment_id;
     private Intent editSegment;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +48,8 @@ public class AddEditSegment extends AppCompatActivity implements View.OnClickLis
         name = (EditText) findViewById(R.id.segment_name);
         distance = (EditText) findViewById(R.id.segment_distance);
         cost = (EditText) findViewById(R.id.segment_cost);
+
+        sharedPreferences = this.getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
 
         ok.setOnClickListener(this);
         cancel.setOnClickListener(this);
@@ -119,9 +124,10 @@ public class AddEditSegment extends AppCompatActivity implements View.OnClickLis
                             segment.setName(name);
                             segment.setDistance(Integer.parseInt(distance));
                             segment.setCost(Double.parseDouble(cost));
+                            segment.setCalendarID(sharedPreferences.getString("calendarID", ""));
 
                             segment.saveInBackground();
-                            finish();
+
                         }
 
                     } else {
@@ -130,8 +136,10 @@ public class AddEditSegment extends AppCompatActivity implements View.OnClickLis
                     }
                 }
             });
-
+            setResult(1);
+            finish();
         }
+
     }
 
 
@@ -151,9 +159,9 @@ public class AddEditSegment extends AppCompatActivity implements View.OnClickLis
                         object.setName(name);
                         object.setDistance(Integer.parseInt(distance));
                         object.setCost(Double.parseDouble(cost));
+                        object.setCalendarID(sharedPreferences.getString("calendarID", ""));
 
                         object.saveInBackground();
-                        finish();
 
                     } else {
                         // something went wrong
@@ -163,6 +171,8 @@ public class AddEditSegment extends AppCompatActivity implements View.OnClickLis
                 }
             });
 
+            setResult(1);
+            finish();
         }
     }
 }

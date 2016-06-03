@@ -1,7 +1,9 @@
 package joao.splitride.app.settings;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -40,6 +42,7 @@ public class AddEditRoute extends AppCompatActivity implements OnClickListener{
     private List<Segment> savedSegments = new ArrayList<Segment>(), allSegments;
     private Intent editRoute;
     private String route_id;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +55,8 @@ public class AddEditRoute extends AppCompatActivity implements OnClickListener{
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Routes");
         setSupportActionBar(toolbar);
+
+        sharedPreferences = this.getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
 
         ok = (Button) findViewById(R.id.ok);
         cancel = (Button) findViewById(R.id.cancel);
@@ -97,7 +102,7 @@ public class AddEditRoute extends AppCompatActivity implements OnClickListener{
                                     Snackbar.make(parentLayout, getResources().getString(R.string.all_fields_mandatory), Snackbar.LENGTH_LONG)
                                     .show();
                             }else{
-                                if(ok.getText().toString().equalsIgnoreCase("ok"))
+                                if (ok.getText().toString().equalsIgnoreCase("add"))
                                     saveRoutes(route_name);
                                 else
                                     editRoute(route_name);
@@ -115,6 +120,7 @@ public class AddEditRoute extends AppCompatActivity implements OnClickListener{
 
         Route route = new Route();
         route.setName(name);
+        route.setCalendarID(sharedPreferences.getString("calendarID", ""));
 
         route.saveInBackground(new SaveCallback() {
             @Override
@@ -123,6 +129,7 @@ public class AddEditRoute extends AppCompatActivity implements OnClickListener{
 
                     ParseQuery<Route> query = ParseQuery.getQuery("Routes");
                     query.whereEqualTo("Name", name);
+                    query.whereEqualTo("calendarID", sharedPreferences.getString("calendarID", ""));
 
                     query.findInBackground(new FindCallback<Route>() {
                         @Override
@@ -133,15 +140,18 @@ public class AddEditRoute extends AppCompatActivity implements OnClickListener{
 
                                 composedRoute.setRouteId(objects.get(0).getObjectId());
                                 composedRoute.setSegmentId(s.getObjectId());
+                                composedRoute.setCalendarID(sharedPreferences.getString("calendarID", ""));
 
                                 composedRoute.saveInBackground();
-                                finish();
 
                             }
+
                         }
 
                     });
                 }
+                setResult(1);
+                finish();
             }
 
         });
@@ -158,6 +168,7 @@ public class AddEditRoute extends AppCompatActivity implements OnClickListener{
                 if(e == null){
                     object.setName(name);
                     object.saveInBackground();
+                    object.setCalendarID(sharedPreferences.getString("calendarID", ""));
 
                     ParseQuery<ComposedRoute> composed_query = ParseQuery.getQuery("ComposedRoutes");
                     composed_query.whereEqualTo("RouteID", route_id);
@@ -181,6 +192,7 @@ public class AddEditRoute extends AppCompatActivity implements OnClickListener{
 
                                         composedRoute.setRouteId(route_id);
                                         composedRoute.setSegmentId(segmentQuery.getFirst().getObjectId());
+                                        composedRoute.setCalendarID(sharedPreferences.getString("calendarID", ""));
                                         composedRoute.saveInBackground();
 
                                     } catch (ParseException e1) {
@@ -192,7 +204,7 @@ public class AddEditRoute extends AppCompatActivity implements OnClickListener{
                         }
                     });
 
-
+                    setResult(1);
                     finish();
                 }
             }

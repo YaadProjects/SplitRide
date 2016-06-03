@@ -88,6 +88,7 @@ public class VehiclesFragment extends ListFragment implements SwipeRefreshLayout
     @Override
     public void onRefresh() {
         ParseQuery<Vehicle> query = ParseQuery.getQuery("Vehicles");
+        query.whereEqualTo("CalendarID", sharedPreferences.getString("calendarID", ""));
 
         query.findInBackground(new FindCallback<Vehicle>() {
             @Override
@@ -184,7 +185,7 @@ public class VehiclesFragment extends ListFragment implements SwipeRefreshLayout
                     }
 
                     intent.putExtra("usernames", usernames);
-                    startActivity(intent);
+                    startActivityForResult(intent, 1);
 
                 } else {
                     Log.d("Erro", error.getMessage());
@@ -193,6 +194,16 @@ public class VehiclesFragment extends ListFragment implements SwipeRefreshLayout
         });
 
 
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == 1) {
+            swipeRefreshLayout.setRefreshing(true);
+            onRefresh();
+        }
     }
 
 

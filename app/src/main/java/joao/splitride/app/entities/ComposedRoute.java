@@ -13,22 +13,27 @@ public class ComposedRoute extends ParseObject{
 
     }
 
-    public void setRouteId(String routeId){
-
-        this.put("RouteID", routeId);
-    }
-
-    public void setSegmentId(String segmentId){
-
-        this.put("SegmentID", segmentId);
-    }
-
-    public String getRouteId(){
+    public String getRouteId() {
         return this.getString("RouteID");
     }
 
-    public String getSegmentId(){
+    public void setRouteId(String routeId) {
+        this.put("RouteID", routeId);
+    }
 
+    public String getSegmentId() {
         return this.getString("SegmentID");
+    }
+
+    public void setSegmentId(String segmentId) {
+        this.put("SegmentID", segmentId);
+    }
+
+    public String getCalendarID() {
+        return this.getString("calendarID");
+    }
+
+    public void setCalendarID(String id) {
+        this.put("calendarID", id);
     }
 }

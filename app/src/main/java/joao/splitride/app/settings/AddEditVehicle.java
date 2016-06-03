@@ -172,6 +172,7 @@ public class AddEditVehicle extends AppCompatActivity implements OnClickListener
                     vehicle.setCalendarID(sharedPreferences.getString("calendarID", ""));
 
                     vehicle.saveInBackground();
+                    setResult(1);
                     finish();
 
                 } catch (ParseException e1) {
@@ -194,8 +195,9 @@ public class AddEditVehicle extends AppCompatActivity implements OnClickListener
 
             Vehicle veh = query_vehicle.getFirst();
 
-            if (veh != null)
+            if (veh != null && !editVehicle.getStringExtra("name").equalsIgnoreCase(name))
                 Snackbar.make(parentLayout, "This vehicle name has already in use. Please pick another.", Snackbar.LENGTH_LONG).show();
+            else throw new ParseException(101, "Not found");
 
         } catch (ParseException e) {
 
@@ -216,6 +218,7 @@ public class AddEditVehicle extends AppCompatActivity implements OnClickListener
                     vehicle.setUserID(user.getObjectId());
 
                     vehicle.saveInBackground();
+                    setResult(1);
                     finish();
                 } catch (ParseException e2) {
                     e2.printStackTrace();

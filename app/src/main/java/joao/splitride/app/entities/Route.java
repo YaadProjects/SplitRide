@@ -13,13 +13,23 @@ public class Route extends ParseObject{
 
     }
 
+    public String getName() {
+
+        return getString("Name");
+    }
+
     public void setName(String name){
 
         put("Name", name);
     }
 
-    public String getName(){
+    public String getCalendarID() {
 
-        return getString("Name");
+        return getString("calendarID");
+    }
+
+    public void setCalendarID(String id) {
+
+        put("calendarID", id);
     }
 }
