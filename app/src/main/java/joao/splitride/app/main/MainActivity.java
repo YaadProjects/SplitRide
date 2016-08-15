@@ -32,14 +32,12 @@ import joao.splitride.app.entities.UsersByCalendars;
 import joao.splitride.app.fragments.MovementsFragment;
 import joao.splitride.app.fragments.MyCalendarsFragment;
 import joao.splitride.app.fragments.RoutesFragment;
-import joao.splitride.app.fragments.Segments;
 import joao.splitride.app.fragments.UsersFragment;
 import joao.splitride.app.fragments.VehiclesFragment;
 import joao.splitride.app.login.DispatchActivity;
 import joao.splitride.app.settings.AddEditCalendar;
 import joao.splitride.app.settings.AddEditMovements;
 import joao.splitride.app.settings.AddEditRoute;
-import joao.splitride.app.settings.AddEditSegment;
 import joao.splitride.app.settings.AddEditTrip;
 import joao.splitride.app.settings.AddEditVehicle;
 import joao.splitride.app.settings.SearchUsers;
@@ -48,7 +46,6 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private FloatingActionButton fab;
-    private Segments segments;
     private RoutesFragment routesFragment;
     private UsersFragment usersFragment;
     private MyCalendarsFragment calendarsFragment;
@@ -67,17 +64,13 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
 
-                Segments segments_frag = (Segments) getSupportFragmentManager().findFragmentByTag("SEGMENTS");
                 RoutesFragment routes_frag = (RoutesFragment) getSupportFragmentManager().findFragmentByTag("ROUTES");
                 MyCalendarsFragment calendars_frag = (MyCalendarsFragment) getSupportFragmentManager().findFragmentByTag("CALENDARS");
                 UsersFragment users_frag = (UsersFragment) getSupportFragmentManager().findFragmentByTag("PERSONS");
                 VehiclesFragment vehicles_frag = (VehiclesFragment) getSupportFragmentManager().findFragmentByTag("VEHICLES");
                 MovementsFragment movements_frag = (MovementsFragment) getSupportFragmentManager().findFragmentByTag("MOVEMENTS");
 
-                if (segments_frag != null && segments_frag.isVisible()) {
-                    Intent intent = new Intent(MainActivity.this, AddEditSegment.class);
-                    startActivityForResult(intent, 1);
-                }else if(routes_frag != null && routes_frag.isVisible()){
+                if(routes_frag != null && routes_frag.isVisible()){
                     Intent intent = new Intent(MainActivity.this, AddEditRoute.class);
                     startActivityForResult(intent, 1);
                 }else if(calendars_frag != null && calendars_frag.isVisible()){
@@ -307,30 +300,6 @@ public class MainActivity extends AppCompatActivity
             }
 
 
-        } else if (id == R.id.nav_segments) {
-
-            if(hasCalendars()){
-                segments = new Segments();
-
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
-                transaction.replace(R.id.calendar1, segments, "SEGMENTS");
-                transaction.addToBackStack(null);
-
-                // Commit the transaction
-                transaction.commit();
-            }else{
-                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-
-                alertDialog.setTitle("Error");
-                alertDialog.setMessage("You have no calendars set. Please go to the My Calendars and create one.");
-                alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {  }
-                });
-                alertDialog.show();
-
-            }
-
         } else if (id == R.id.nav_vehicles) {
 
             if (hasCalendars()) {
@@ -369,15 +338,12 @@ public class MainActivity extends AppCompatActivity
 
     public void removeOnClickHandler(View v){
 
-        Segments segment = (Segments) getSupportFragmentManager().findFragmentByTag("SEGMENTS");
         RoutesFragment route = (RoutesFragment) getSupportFragmentManager().findFragmentByTag("ROUTES");
         MyCalendarsFragment myCalendars = (MyCalendarsFragment) getSupportFragmentManager().findFragmentByTag("CALENDARS");
         UsersFragment users = (UsersFragment) getSupportFragmentManager().findFragmentByTag("PERSONS");
         VehiclesFragment vehicles = (VehiclesFragment) getSupportFragmentManager().findFragmentByTag("VEHICLES");
 
-        if (segment != null && segment.isVisible()) {
-            segments.removeOnClickHandler(v);
-        }else if(route != null && route.isVisible()){
+        if(route != null && route.isVisible()){
             routesFragment.removeOnClickHandler(v);
         }else if(myCalendars != null && myCalendars.isVisible()){
             calendarsFragment.removeOnClickHandler(v);
@@ -395,14 +361,11 @@ public class MainActivity extends AppCompatActivity
 
     public void editOnClickHandler(View v){
 
-        Segments segment = (Segments) getSupportFragmentManager().findFragmentByTag("SEGMENTS");
         RoutesFragment route = (RoutesFragment) getSupportFragmentManager().findFragmentByTag("ROUTES");
         MyCalendarsFragment myCalendars = (MyCalendarsFragment) getSupportFragmentManager().findFragmentByTag("CALENDARS");
         VehiclesFragment vehicles = (VehiclesFragment) getSupportFragmentManager().findFragmentByTag("VEHICLES");
 
-        if (segment != null && segment.isVisible()) {
-            segments.editOnClickHandler(v);
-        }else if(route != null && route.isVisible()){
+        if(route != null && route.isVisible()){
             routesFragment.editOnClickHandler(v);
         }else if(myCalendars != null && myCalendars.isVisible()){
             calendarsFragment.editOnClickHandler(v);
@@ -414,12 +377,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         VehiclesFragment vehicles = (VehiclesFragment) getSupportFragmentManager().findFragmentByTag("VEHICLES");
-        Segments segment = (Segments) getSupportFragmentManager().findFragmentByTag("SEGMENTS");
         RoutesFragment route = (RoutesFragment) getSupportFragmentManager().findFragmentByTag("ROUTES");
 
-        if (segment != null && segment.isVisible()) {
-            segments.onActivityResult(requestCode, resultCode, data);
-        } else if (route != null && route.isVisible()) {
+        if (route != null && route.isVisible()) {
             routesFragment.onActivityResult(requestCode, resultCode, data);
         } else if (vehicles != null && vehicles.isVisible()) {
             vehiclesFragment.onActivityResult(requestCode, resultCode, data);

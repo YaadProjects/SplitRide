@@ -47,41 +47,55 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-                    android:orientation="horizontal"
-                    android:paddingLeft="15dp"
+        android:paddingLeft="15dp"
         android:paddingRight="15dp">
 
         <TextView android:id="@+id/textView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="@string/segment"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_gravity="center"
+                  android:foregroundGravity="center_vertical"
+                  android:gravity="center_vertical"
+                  android:text="@string/distance"
+                  android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <ImageButton
-            android:id="@+id/add_segments"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentRight="true"
-            android:layout_column="2"
-            android:foregroundGravity="center_vertical"
-            android:onClick="addSegmentsHandler"
-            android:src="@drawable/ic_plus" />
+        <EditText android:id="@+id/route_distance"
+                  android:layout_width="264dp"
+                  android:layout_height="wrap_content"
+                  android:layout_alignParentRight="true"
+                  android:ems="10"
+                  android:hint="@string/route_name_example" />
+
     </RelativeLayout>
 
-    <ListView
-        android:id="@+id/segments_list"
-        android:layout_width="match_parent"
-        android:layout_height="146dp"
-        android:layout_alignParentTop="true"
-        android:layout_weight="0.60"
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:paddingLeft="15dp"
-        android:paddingRight="15dp"
-        android:scrollbarAlwaysDrawVerticalTrack="true">
-    </ListView>
+        android:paddingRight="15dp">
+
+        <TextView android:id="@+id/textView3"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_gravity="center"
+                  android:foregroundGravity="center_vertical"
+                  android:gravity="center_vertical"
+                  android:text="@string/cost"
+                  android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <EditText android:id="@+id/route_cost"
+                  android:layout_width="264dp"
+                  android:layout_height="wrap_content"
+                  android:layout_alignParentRight="true"
+                  android:ems="10"
+                  android:hint="@string/route_name_example" />
+
+    </RelativeLayout>
+
 
 
     <Button android:id="@+id/ok"

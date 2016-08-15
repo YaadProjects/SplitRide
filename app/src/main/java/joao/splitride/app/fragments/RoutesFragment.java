@@ -11,22 +11,24 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import com.daimajia.swipe.SwipeLayout;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import joao.splitride.R;
 import joao.splitride.app.custom.RouteListAdapter;
-import joao.splitride.app.entities.ComposedRoute;
 import joao.splitride.app.entities.Route;
-import joao.splitride.app.entities.Segment;
 import joao.splitride.app.settings.AddEditRoute;
 
 /**
@@ -35,6 +37,7 @@ import joao.splitride.app.settings.AddEditRoute;
 public class RoutesFragment extends ListFragment implements SwipeRefreshLayout.OnRefreshListener{
 
     private ListView routes_list;
+    private RouteListAdapter mAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private SharedPreferences sharedPreferences;
 
@@ -69,9 +72,52 @@ public class RoutesFragment extends ListFragment implements SwipeRefreshLayout.O
             @Override
             public void done(List<Route> routesList, ParseException error) {
                 if (error == null) {
-                    RouteListAdapter adapter = new RouteListAdapter(getContext(), R.layout.custom_line_list_view, routesList);
+                    routes_list.setAdapter(new RouteListAdapter<Route>(getContext(), R.layout.listview_item, R.id.position, routesList));
 
-                    routes_list.setAdapter(adapter);
+                    routes_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            ((SwipeLayout)(routes_list.getChildAt(position - routes_list.getFirstVisiblePosition()))).open(true);
+                        }
+                    });
+                    routes_list.setOnTouchListener(new View.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View v, MotionEvent event) {
+                            Log.e("ListView", "OnTouch");
+                            return false;
+                        }
+                    });
+                    routes_list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                        @Override
+                        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                            Toast.makeText(getContext(), "OnItemLongClickListener", Toast.LENGTH_SHORT).show();
+                            return true;
+                        }
+                    });
+                    routes_list.setOnScrollListener(new AbsListView.OnScrollListener() {
+                        @Override
+                        public void onScrollStateChanged(AbsListView view, int scrollState) {
+                            Log.e("ListView", "onScrollStateChanged");
+                        }
+
+                        @Override
+                        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+                        }
+                    });
+
+                    routes_list.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                            Log.e("ListView", "onItemSelected:" + position);
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parent) {
+                            Log.e("ListView", "onNothingSelected:");
+                        }
+                    });
+
 
                     progressDialog.dismiss();
 
@@ -93,9 +139,9 @@ public class RoutesFragment extends ListFragment implements SwipeRefreshLayout.O
             @Override
             public void done(List<Route> routesList, ParseException error) {
                 if (error == null) {
-                    RouteListAdapter adapter = new RouteListAdapter(getContext(), R.layout.custom_line_list_view, routesList);
 
-                    routes_list.setAdapter(adapter);
+
+                    //routes_list.setAdapter(adapter);
                     swipeRefreshLayout.setRefreshing(false);
 
                 } else {
@@ -121,30 +167,17 @@ public class RoutesFragment extends ListFragment implements SwipeRefreshLayout.O
                 ParseQuery<Route> query = ParseQuery.getQuery("Routes");
                 query.whereEqualTo("objectId", route.getObjectId());
 
+
+
                 query.findInBackground(new FindCallback<Route>() {
                     @Override
                     public void done(List<Route> objects, ParseException e) {
                         if (e == null) {
                             // object will be your game score
                             Route object = objects.get(0);
-
-                            ParseQuery<ComposedRoute> query = ParseQuery.getQuery("ComposedRoutes");
-                            query.whereEqualTo("RouteID", object.getObjectId());
-
-                            query.findInBackground(new FindCallback<ComposedRoute>() {
-                                @Override
-                                public void done(List<ComposedRoute> objects, ParseException e) {
-                                    if (e == null) {
-
-                                        for (ComposedRoute cr : objects) {
-                                            cr.deleteInBackground();
-                                        }
-                                    }
-                                }
-                            });
-
                             object.deleteInBackground();
                             onRefresh();
+
                         } else {
                             // something went wrong
                             //Snackbar.make(parentLayout, getResources().getString(R.string.all_fields_mandatory), Snackbar.LENGTH_LONG)
@@ -177,35 +210,10 @@ public class RoutesFragment extends ListFragment implements SwipeRefreshLayout.O
         final Intent intent = new Intent(getActivity(), AddEditRoute.class);
         intent.putExtra("id", route.getObjectId());
         intent.putExtra("name", route.getName());
+        intent.putExtra("distance", route.getDistance());
+        intent.putExtra("cost", route.getCost());
 
-        ParseQuery<ComposedRoute> query = ParseQuery.getQuery("ComposedRoutes");
-
-        query.findInBackground(new FindCallback<ComposedRoute>() {
-            @Override
-            public void done(List<ComposedRoute> composedRoutesList, ParseException error) {
-                if (error == null) {
-
-                    final ArrayList<Segment> segmentsID = new ArrayList<Segment>();
-
-                    for (ComposedRoute cr : composedRoutesList) {
-                        ParseQuery<Segment> query_segment = ParseQuery.getQuery("Segments");
-                        query_segment.whereEqualTo("objectId", cr.getSegmentId());
-                        try {
-                            segmentsID.add(query_segment.getFirst());
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    intent.putExtra("segments", segmentsID);
-                    startActivityForResult(intent, 1);
-
-                } else {
-                    Log.d("Erro", error.getMessage());
-                }
-            }
-        });
-
+        startActivityForResult(intent, 1);
     }
 
     @Override

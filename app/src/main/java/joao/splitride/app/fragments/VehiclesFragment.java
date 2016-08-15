@@ -94,7 +94,7 @@ public class VehiclesFragment extends ListFragment implements SwipeRefreshLayout
             @Override
             public void done(List<Vehicle> vehiclesList, ParseException error) {
                 if (error == null) {
-                    VehicleListAdapter adapter = new VehicleListAdapter(getContext(), R.layout.custom_line_list_view, vehiclesList);
+                    VehicleListAdapter adapter = new VehicleListAdapter(getContext(), R.layout.listview_item, vehiclesList);
 
                     vehicles_list.setAdapter(adapter);
                     swipeRefreshLayout.setRefreshing(false);

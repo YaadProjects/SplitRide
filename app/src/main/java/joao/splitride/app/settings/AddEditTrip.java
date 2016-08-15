@@ -7,12 +7,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -23,12 +26,16 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
 import joao.splitride.R;
+import joao.splitride.app.entities.PassengersInTrip;
+import joao.splitride.app.entities.Route;
+import joao.splitride.app.entities.Trip;
 import joao.splitride.app.entities.Vehicle;
 
 /**
@@ -42,6 +49,9 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
     private EditText date;
     private SharedPreferences sharedPreferences;
     private Spinner drivers, vehicles;
+    private CheckBox roundtrip;
+    private ArrayList<String> passengerNames = new ArrayList<>(), passengerRoutes = new ArrayList<>();
+    private ArrayList<String> usernames = new ArrayList<String>(), vehiclesNames = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +66,7 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
         drivers = (Spinner) findViewById(R.id.driverSpinner);
         vehicles = (Spinner) findViewById(R.id.vehicleSpinner);
         date = (EditText) findViewById(R.id.date);
+        roundtrip = (CheckBox) findViewById(R.id.ida_volta);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Trips");
@@ -77,8 +88,7 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
             @Override
             public void done(List<Vehicle> objects, ParseException e) {
 
-                ArrayList<String> usernames = new ArrayList<String>();
-                ArrayList<String> vehiclesNames = new ArrayList<String>();
+
 
                 for (Vehicle v : objects) {
                     vehiclesNames.add(v.getVehicleName());
@@ -115,12 +125,95 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
 
     }
 
+    private void saveTrip(String date, String driver, String vehicle, boolean roundtrip, final ArrayList<String> passengers, final ArrayList<String> routes){
+
+        ParseQuery<ParseUser> queryUser = ParseUser.getQuery();
+        queryUser.whereEqualTo("username", driver);
+
+        ParseQuery<Vehicle> queryVehicle = ParseQuery.getQuery("Vehicles");
+        queryVehicle.whereEqualTo("VehicleName", vehicle);
+        queryVehicle.whereEqualTo("CalendarID", sharedPreferences.getString("calendarID", ""));
+
+        try {
+            String driverID = queryUser.getFirst().getObjectId();
+            String vehicleID = queryVehicle.getFirst().getObjectId();
+
+            final Trip trip = new Trip();
+
+            trip.setCalendarID(sharedPreferences.getString("calendarID", ""));
+            trip.setDate(date);
+            trip.setDriverID(driverID);
+            trip.setVehicleID(vehicleID);
+            trip.setRoundTrip(roundtrip);
+
+
+            trip.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+
+                    if(e==null){
+
+                        for(int i=0; i<passengers.size(); i++){
+                            ParseQuery<ParseUser> queryUser = ParseUser.getQuery();
+                            queryUser.whereEqualTo("username", passengers.get(i));
+
+                            ParseQuery<Route> queryRoute = ParseQuery.getQuery("Routes");
+                            queryRoute.whereEqualTo("Name", routes.get(i));
+                            queryRoute.whereEqualTo("calendarID", sharedPreferences.getString("calendarID", ""));
+
+
+                            try {
+                                String passengerID = queryUser.getFirst().getObjectId();
+                                String routeID = queryRoute.getFirst().getObjectId();
+
+                                PassengersInTrip passengersInTrip = new PassengersInTrip();
+
+                                passengersInTrip.setPassengerID(passengerID);
+                                passengersInTrip.setRouteID(routeID);
+                                passengersInTrip.setTripID(trip.getObjectId());
+                                passengersInTrip.setCalendarID(sharedPreferences.getString("calendarID", ""));
+
+                                passengersInTrip.saveInBackground();
+
+                            }catch (ParseException e1){
+                                e1.printStackTrace();
+                            }
+
+                        }
+
+                    }
+                }
+            });
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     @Override
     public void onClick(View v) {
 
         switch (v.getId()) {
 
             case R.id.saveTrip:
+
+                if(!date.getText().toString().equalsIgnoreCase("DD/MM/YYYY") && !passengerNames.isEmpty()){
+                    saveTrip(date.getText().toString(), usernames.get(drivers.getSelectedItemPosition()), vehiclesNames.get(vehicles.getSelectedItemPosition()), roundtrip.isChecked(), passengerNames, passengerRoutes);
+                    finish();
+                }else{
+                    String message = "";
+
+                    if(date.getText().toString().equalsIgnoreCase("DD/MM/YYYY"))
+                        message = "You must indicate a date";
+                    else message = "You must indicate, at least, one passenger.";
+
+                    Snackbar snackbar = Snackbar.make(parentLayout, message, Snackbar.LENGTH_LONG);
+
+                    snackbar.show();
+
+                }
+
+
                 break;
 
             case R.id.cancelTrip:
@@ -129,8 +222,11 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
 
             case R.id.passengerListButton:
                 Intent intent = new Intent(AddEditTrip.this, PassengersByTrips.class);
-                startActivity(intent);
-                //finish();
+
+                intent.putStringArrayListExtra("passengersNames", passengerNames);
+                intent.putStringArrayListExtra("passengersRoutes", passengerRoutes);
+                startActivityForResult(intent, 1);
+
                 break;
 
             case R.id.calendarButton:
@@ -181,5 +277,17 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
             date.setText(day + "/" + (month + 1) + "/" + year);
         }
 
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+
+        if(resultCode == 1){
+
+            passengerNames = data.getStringArrayListExtra("passengersNames");
+            passengerRoutes = data.getStringArrayListExtra("passengersRoutes");
+
+            Log.w("application", passengerNames.toString());
+            Log.w("application", passengerRoutes.toString());
+        }
     }
 }

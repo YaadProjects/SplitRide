@@ -129,7 +129,7 @@ public class UsersFragment extends ListFragment implements SwipeRefreshLayout.On
                         }
                     }
 
-                    UserListAdapter adapter = new UserListAdapter(getContext(), R.layout.custom_line_list_view, users);
+                    UserListAdapter adapter = new UserListAdapter(getContext(), R.layout.listview_item, users);
                     users_list.setAdapter(adapter);
                     swipeRefreshLayout.setRefreshing(false);
                 } else e.printStackTrace();

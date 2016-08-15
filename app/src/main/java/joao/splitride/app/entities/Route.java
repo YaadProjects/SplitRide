@@ -32,4 +32,20 @@ public class Route extends ParseObject{
 
         put("calendarID", id);
     }
+
+    public void setCost(double cost){
+        put("Cost", cost);
+    }
+
+    public double getCost(){
+        return getDouble("Cost");
+    }
+
+    public void setDistance(double distance){
+        put("Distance", distance);
+    }
+
+    public double getDistance(){
+        return getDouble("Distance");
+    }
 }
