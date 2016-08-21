@@ -14,9 +14,11 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -28,10 +30,12 @@ import java.util.Calendar;
 import java.util.Date;
 
 import joao.splitride.R;
+import joao.splitride.app.entities.Trip;
 import joao.splitride.app.entities.UsersByCalendars;
 import joao.splitride.app.fragments.MovementsFragment;
 import joao.splitride.app.fragments.MyCalendarsFragment;
 import joao.splitride.app.fragments.RoutesFragment;
+import joao.splitride.app.fragments.TripsFragment;
 import joao.splitride.app.fragments.UsersFragment;
 import joao.splitride.app.fragments.VehiclesFragment;
 import joao.splitride.app.login.DispatchActivity;
@@ -51,6 +55,8 @@ public class MainActivity extends AppCompatActivity
     private MyCalendarsFragment calendarsFragment;
     private VehiclesFragment vehiclesFragment;
     private MovementsFragment movementsFragment;
+    private TripsFragment tripsFragment;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,51 +119,57 @@ public class MainActivity extends AppCompatActivity
         t.commit();
 
 
-        // Cenas do calendário
-
-
+        // Ver se tem já alguma viagem para aquele dia
         final CaldroidListener calendarListener = new CaldroidListener() {
             @Override
             public void onSelectDate(Date date, View view) {
 
-                AlertDialog levelDialog;
+                sharedPreferences = getApplication().getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
 
-                // Strings to Show In Dialog with Radio Buttons
-                final CharSequence[] items = {" Easy ", " Medium ", " Hard ", " Very Hard "};
+                String[] dateParts = date.toString().split(" ");
+                String dateFormat = dateParts[2] + "/" + getNumberFromMonthName(dateParts[1]) + "/" + dateParts[5];
 
-                // Creating and Building the Dialog
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("Select The Difficulty Level");
-                builder.setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int item) {
+                ParseQuery<Trip> tripQuery = ParseQuery.getQuery("Trips");
+                tripQuery.whereEqualTo("CalendarID", sharedPreferences.getString("calendarID", ""));
+                tripQuery.whereEqualTo("Date", dateFormat);
 
+                Log.w("applications", dateFormat);
 
-                        switch (item) {
-                            case 0:
-                                // Your code when first option seletced
-                                break;
-                            case 1:
-                                // Your code when 2nd  option seletced
+                try {
+                    if (tripQuery.count() > 0) {
+                        if (hasCalendars()) {
+                            tripsFragment = new TripsFragment();
 
-                                break;
-                            case 2:
-                                // Your code when 3rd option seletced
-                                break;
-                            case 3:
-                                // Your code when 4th  option seletced
-                                break;
+                            Bundle bundle = new Bundle();
+                            bundle.putString("date", dateFormat);
+                            tripsFragment.setArguments(bundle);
+                            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
+                            transaction.replace(R.id.calendar1, tripsFragment, "TRIPS");
+                            transaction.addToBackStack(null);
+
+                            // Commit the transaction
+                            transaction.commit();
+                        } else {
+                            AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+
+                            alertDialog.setTitle("Error");
+                            alertDialog.setMessage("You have no calendars set. Please go to the My Calendars and create one.");
+                            alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            });
+                            alertDialog.show();
                         }
-                    }
-                });
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
 
+                    } else {
+
+                        Toast.makeText(getApplicationContext(), "There are no trips on this date.", Toast.LENGTH_LONG).show();
                     }
-                });
-                levelDialog = builder.create();
-                levelDialog.show();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
 
             }
         };
@@ -338,19 +350,13 @@ public class MainActivity extends AppCompatActivity
 
     public void removeOnClickHandler(View v){
 
-        RoutesFragment route = (RoutesFragment) getSupportFragmentManager().findFragmentByTag("ROUTES");
         MyCalendarsFragment myCalendars = (MyCalendarsFragment) getSupportFragmentManager().findFragmentByTag("CALENDARS");
         UsersFragment users = (UsersFragment) getSupportFragmentManager().findFragmentByTag("PERSONS");
-        VehiclesFragment vehicles = (VehiclesFragment) getSupportFragmentManager().findFragmentByTag("VEHICLES");
 
-        if(route != null && route.isVisible()){
-            routesFragment.removeOnClickHandler(v);
-        }else if(myCalendars != null && myCalendars.isVisible()){
+        if (myCalendars != null && myCalendars.isVisible()) {
             calendarsFragment.removeOnClickHandler(v);
         } else if (users != null && users.isVisible()) {
             usersFragment.removeOnClickHandler(v);
-        } else if (vehicles != null && vehicles.isVisible()) {
-            vehiclesFragment.removeOnClickHandler(v);
         }
 
     }
@@ -361,16 +367,10 @@ public class MainActivity extends AppCompatActivity
 
     public void editOnClickHandler(View v){
 
-        RoutesFragment route = (RoutesFragment) getSupportFragmentManager().findFragmentByTag("ROUTES");
         MyCalendarsFragment myCalendars = (MyCalendarsFragment) getSupportFragmentManager().findFragmentByTag("CALENDARS");
-        VehiclesFragment vehicles = (VehiclesFragment) getSupportFragmentManager().findFragmentByTag("VEHICLES");
 
-        if(route != null && route.isVisible()){
-            routesFragment.editOnClickHandler(v);
-        }else if(myCalendars != null && myCalendars.isVisible()){
+        if (myCalendars != null && myCalendars.isVisible()) {
             calendarsFragment.editOnClickHandler(v);
-        } else if (vehicles != null && vehicles.isVisible()) {
-            vehiclesFragment.editOnClickHandler(v);
         }
     }
 
@@ -415,5 +415,52 @@ public class MainActivity extends AppCompatActivity
         }
 
         return calendars;
+    }
+
+    private int getNumberFromMonthName(String month) {
+
+        int result = 0;
+
+        switch (month) {
+
+            case "Jan":
+                result = 1;
+                break;
+            case "Feb":
+                result = 2;
+                break;
+            case "Mar":
+                result = 3;
+                break;
+            case "Apr":
+                result = 4;
+                break;
+            case "May":
+                result = 5;
+                break;
+            case "Jun":
+                result = 6;
+                break;
+            case "Jul":
+                result = 7;
+                break;
+            case "Aug":
+                result = 8;
+                break;
+            case "Sep":
+                result = 9;
+                break;
+            case "Oct":
+                result = 10;
+                break;
+            case "Nov":
+                result = 11;
+                break;
+            case "Dec":
+                result = 12;
+                break;
+        }
+
+        return result;
     }
 }

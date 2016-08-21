@@ -89,7 +89,7 @@ public class MyCalendarsFragment extends ListFragment implements SwipeRefreshLay
 
                     }
 
-                    CalendarListAdapter adapter = new CalendarListAdapter(getContext(), R.layout.listview_item, calendarID);
+                    CalendarListAdapter adapter = new CalendarListAdapter(getContext(), R.layout.custom_line_list_view, calendarID);
                     calendars_list.setAdapter(adapter);
 
                     progressDialog.dismiss();

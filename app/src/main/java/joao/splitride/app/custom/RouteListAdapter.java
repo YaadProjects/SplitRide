@@ -5,6 +5,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.daimajia.swipe.adapters.ArraySwipeAdapter;
@@ -65,10 +66,10 @@ public class RouteListAdapter<T> extends ArraySwipeAdapter {
 
         holder = new RouteHolder();
         holder.route = items.get(position);
-        //holder.edit_route = (ImageButton)row.findViewById(R.id.edit);
-        //holder.remove_route = (ImageButton)row.findViewById(R.id.remove);
-        //holder.edit_route.setTag(holder.route);
-        //holder.remove_route.setTag(holder.route);
+        holder.edit = (ImageView) row.findViewById(R.id.edit);
+        holder.remove = (ImageView) row.findViewById(R.id.delete);
+        holder.edit.setTag(holder.route);
+        holder.remove.setTag(holder.route);
 
         holder.name = (TextView)row.findViewById(R.id.line_name);
 
@@ -86,5 +87,6 @@ public class RouteListAdapter<T> extends ArraySwipeAdapter {
     public static class RouteHolder{
         Route route;
         TextView name;
+        ImageView edit, remove;
     }
 }

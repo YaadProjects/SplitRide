@@ -2,19 +2,23 @@ package joao.splitride.app.settings;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -202,13 +206,81 @@ public class PassengersByTrips extends AppCompatActivity implements View.OnClick
 
                     passengerList.setAdapter(simpleAdapter);
                 }else{
-                    Snackbar snackbar = Snackbar
-                            .make(parentLayout, passengerN + " is already in the list", Snackbar.LENGTH_LONG);
+                    Snackbar snackbar = Snackbar.make(parentLayout, passengerN + " is already in the list", Snackbar.LENGTH_LONG);
 
                     snackbar.show();
                 }
 
                 break;
         }
+    }
+
+    public void editElementOnClickHandler(View v) {
+
+        // Determinar quem e o utilizador a ser editado
+        LinearLayout line_layout = (LinearLayout) v.getParent();
+        final TextView text_test = (TextView) line_layout.findViewById(R.id.line_b);
+
+        final String route_selected = text_test.getText().toString();
+        int pos = routesName.indexOf(route_selected);
+
+        String[] routes_array = new String[routesName.size()];
+
+        for (int i = 0; i < routesName.size(); i++) {
+
+            routes_array[i] = routesName.get(i);
+        }
+
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        // Set the dialog title
+        builder.setTitle("Select the route")
+                .setSingleChoiceItems(routes_array, pos, null)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        dialog.dismiss();
+                        int selectedPosition = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
+
+                        text_test.setText(routesName.get(selectedPosition));
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+
+        builder.create();
+        builder.show();
+
+    }
+
+    public void removeElementOnClickHandler(View v) {
+
+        LinearLayout rl = (LinearLayout) v.getParent();
+        TextView tv = (TextView) rl.findViewById(R.id.line_a);
+        String name = tv.getText().toString();
+
+        HashMap<String, String> item = null;
+
+        for (HashMap<String, String> pair : pass) {
+
+            if (pair.containsValue(name))
+                item = pair;
+        }
+
+        if (item != null)
+            pass.remove(item);
+
+        simpleAdapter = new SimpleAdapter(this, pass, R.layout.custom_passengers_layout,
+                new String[]{"line1", "line2"},
+                new int[]{R.id.line_a, R.id.line_b});
+
+        passengerList.setAdapter(simpleAdapter);
+
     }
 }
