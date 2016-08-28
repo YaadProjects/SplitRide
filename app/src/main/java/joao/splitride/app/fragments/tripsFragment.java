@@ -22,7 +22,6 @@ import java.util.List;
 import joao.splitride.R;
 import joao.splitride.app.custom.TripListAdapter;
 import joao.splitride.app.entities.Trip;
-import joao.splitride.app.entities.Vehicle;
 
 /**
  * Created by Joao on 03-12-2015.
@@ -67,12 +66,14 @@ public class TripsFragment extends ListFragment implements SwipeRefreshLayout.On
 
         query.findInBackground(new FindCallback<Trip>() {
             @Override
-            public void done(List<Trip> vehiclesList, ParseException error) {
+            public void done(List<Trip> tripList, ParseException error) {
                 if (error == null) {
 
-                    trips_list.setAdapter(new TripListAdapter<Trip>(getContext(), R.layout.listview_item, R.id.line_name, vehiclesList));
+                    trips_list.setAdapter(new TripListAdapter<Trip>(getContext(), R.layout.listview_item, R.id.line_name, tripList));
 
                     progressDialog.dismiss();
+
+
                 } else {
                     Log.d("score", "Error: " + error.getMessage());
                 }
@@ -80,132 +81,29 @@ public class TripsFragment extends ListFragment implements SwipeRefreshLayout.On
         });
 
 
-//       vehicles_list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-//
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//
-//                ((SwipeLayout)(vehicles_list.getChildAt(position - vehicles_list.getFirstVisiblePosition()))).open(true);
-//
-//                LinearLayout bottom = (LinearLayout) ((SwipeLayout)(vehicles_list.getChildAt(position - vehicles_list.getFirstVisiblePosition()))).findViewWithTag("Bottom2");
-//
-//                bottom.findViewById(R.id.edit).setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//
-//                        final Vehicle vehicle = (Vehicle) v.getTag();
-//
-//                        final Intent intent = new Intent(getActivity(), AddEditVehicle.class);
-//                        intent.putExtra("id", vehicle.getObjectId());
-//                        intent.putExtra("name", vehicle.getVehicleName());
-//                        intent.putExtra("consumption", vehicle.getVehicleConsumption());
-//                        intent.putExtra("owner", vehicle.getUserID());
-//
-//                        ParseQuery<UsersByCalendars> query = ParseQuery.getQuery("UsersByCalendar");
-//                        query.whereEqualTo("CalendarID", sharedPreferences.getString("calendarID", ""));
-//
-//                        query.findInBackground(new FindCallback<UsersByCalendars>() {
-//                            @Override
-//                            public void done(List<UsersByCalendars> usersByCalendarsList, ParseException error) {
-//                                if (error == null) {
-//
-//                                    ArrayList<String> usernames = new ArrayList<String>();
-//
-//                                    for (UsersByCalendars uc : usersByCalendarsList) {
-//                                        ParseQuery<ParseUser> query_users = ParseUser.getQuery();
-//                                        query_users.whereEqualTo("objectId", uc.getUserID());
-//
-//                                        try {
-//                                            ParseUser parseUser = query_users.getFirst();
-//                                            usernames.add(parseUser.getUsername());
-//
-//                                            if (parseUser.getObjectId().equalsIgnoreCase(vehicle.getUserID()))
-//                                                intent.putExtra("owner", parseUser.getUsername());
-//
-//                                        } catch (ParseException e1) {
-//                                            e1.printStackTrace();
-//                                        }
-//                                    }
-//
-//                                    intent.putExtra("usernames", usernames);
-//                                    startActivityForResult(intent, 1);
-//
-//                                } else {
-//                                    Log.d("Erro", error.getMessage());
-//                                }
-//                            }
-//                        });
-//                    }
-//                });
-//
-//                bottom.findViewById(R.id.delete).setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        final Vehicle vehicle = (Vehicle) v.getTag();
-//
-//                        AlertDialog dialog = new AlertDialog.Builder(getContext()).create();
-//                        dialog.setTitle("Delete vehicle");
-//                        dialog.setMessage("Are you sure you want to delete this vehicle?");
-//                        dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes", new DialogInterface.OnClickListener() {
-//
-//                            @Override
-//                            public void onClick(DialogInterface dialog, int which) {
-//                                // TODO Auto-generated method stub
-//                                ParseQuery<Vehicle> query = ParseQuery.getQuery("Vehicles");
-//                                query.whereEqualTo("objectId", vehicle.getObjectId());
-//
-//                                try {
-//                                    Vehicle vehicle_delete = query.getFirst();
-//
-//                                    vehicle_delete.deleteInBackground();
-//                                    onRefresh();
-//                                } catch (ParseException e) {
-//                                    e.printStackTrace();
-//                                }
-//
-//                            }
-//                        });
-//
-//                        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No", new DialogInterface.OnClickListener() {
-//
-//                            @Override
-//                            public void onClick(DialogInterface dialog, int which) {
-//                                // TODO Auto-generated method stub
-//
-//                            }
-//                        });
-//
-//                        dialog.show();
-//
-//                    }
-//                });
-//
-//
-//
-//                Log.w("applications", "será que aqui funciona");
-//            }
-//        });
-
     }
+
 
 
     @Override
     public void onRefresh() {
-        ParseQuery<Vehicle> query = ParseQuery.getQuery("Vehicles");
-        query.whereEqualTo("CalendarID", sharedPreferences.getString("calendarID", ""));
+        sharedPreferences = getActivity().getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
 
-        query.findInBackground(new FindCallback<Vehicle>() {
+        ParseQuery<Trip> query = ParseQuery.getQuery("Trips");
+        query.whereEqualTo("CalendarID", sharedPreferences.getString("calendarID", ""));
+        query.whereEqualTo("Date", date);
+
+        query.findInBackground(new FindCallback<Trip>() {
             @Override
-            public void done(List<Vehicle> vehiclesList, ParseException error) {
-//                if (error == null) {
-//                    VehicleListAdapter adapter = new VehicleListAdapter(getContext(), R.layout.listview_item, vehiclesList);
-//
-//                    vehicles_list.setAdapter(adapter);
-//                    swipeRefreshLayout.setRefreshing(false);
-//
-//                } else {
-//                    Log.d("Error", error.getMessage());
-//                }
+            public void done(List<Trip> tripList, ParseException error) {
+                if (error == null) {
+                    trips_list.setAdapter(new TripListAdapter<Trip>(getContext(), R.layout.listview_item, R.id.line_name, tripList));
+
+                    swipeRefreshLayout.setRefreshing(false);
+
+                } else {
+                    Log.d("Error", error.getMessage());
+                }
             }
         });
     }
@@ -215,10 +113,8 @@ public class TripsFragment extends ListFragment implements SwipeRefreshLayout.On
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == 1) {
-            swipeRefreshLayout.setRefreshing(true);
-            onRefresh();
-        }
+        swipeRefreshLayout.setRefreshing(true);
+        onRefresh();
     }
 
 
