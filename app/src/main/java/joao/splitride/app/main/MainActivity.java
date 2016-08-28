@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity
     private MovementsFragment movementsFragment;
     private TripsFragment tripsFragment;
     private SharedPreferences sharedPreferences;
+    private CaldroidListener calendarListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,7 +121,7 @@ public class MainActivity extends AppCompatActivity
 
 
         // Ver se tem já alguma viagem para aquele dia
-        final CaldroidListener calendarListener = new CaldroidListener() {
+        calendarListener = new CaldroidListener() {
             @Override
             public void onSelectDate(Date date, View view) {
 
@@ -227,6 +228,8 @@ public class MainActivity extends AppCompatActivity
             args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
             args.putInt(CaldroidFragment.YEAR, cal.get(Calendar.YEAR));
             caldroidFragment.setArguments(args);
+
+            caldroidFragment.setCaldroidListener(calendarListener);
 
             FragmentTransaction t = getSupportFragmentManager().beginTransaction();
             t.replace(R.id.calendar1, caldroidFragment);
@@ -378,10 +381,13 @@ public class MainActivity extends AppCompatActivity
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         VehiclesFragment vehicles = (VehiclesFragment) getSupportFragmentManager().findFragmentByTag("VEHICLES");
         RoutesFragment route = (RoutesFragment) getSupportFragmentManager().findFragmentByTag("ROUTES");
+        TripsFragment trip = (TripsFragment) getSupportFragmentManager().findFragmentByTag("TRIPS");
 
         if (route != null && route.isVisible()) {
             routesFragment.onActivityResult(requestCode, resultCode, data);
         } else if (vehicles != null && vehicles.isVisible()) {
+            vehiclesFragment.onActivityResult(requestCode, resultCode, data);
+        } else if (trip != null && trip.isVisible()) {
             vehiclesFragment.onActivityResult(requestCode, resultCode, data);
         }
     }

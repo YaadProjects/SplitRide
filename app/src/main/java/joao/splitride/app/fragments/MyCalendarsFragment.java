@@ -41,7 +41,7 @@ public class MyCalendarsFragment extends ListFragment implements SwipeRefreshLay
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_calendars, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_my_calendars, container, false);
 
         calendars_list = (ListView) rootView.findViewById(android.R.id.list);
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);

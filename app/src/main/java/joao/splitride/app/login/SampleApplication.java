@@ -21,7 +21,7 @@ public class SampleApplication extends Application {
 
     public void onCreate(){
         super.onCreate();
-        //Parse.enableLocalDatastore(this);
+        Parse.enableLocalDatastore(this);
         ParseObject.registerSubclass(Route.class);
         ParseObject.registerSubclass(Calendars.class);
         ParseObject.registerSubclass(UsersByCalendars.class);
