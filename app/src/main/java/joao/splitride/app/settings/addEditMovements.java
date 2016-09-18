@@ -1,5 +1,6 @@
 package joao.splitride.app.settings;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -53,6 +54,11 @@ public class AddEditMovements extends AppCompatActivity implements View.OnClickL
         toolbar.setTitle("Movement");
         setSupportActionBar(toolbar);
 
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Por favor espere");
+        progressDialog.setMessage("A receber informação.");
+        progressDialog.show();
+
         ParseQuery<ParseUser> query_users = ParseUser.getQuery();
 
         query_users.findInBackground(new FindCallback<ParseUser>() {
@@ -69,6 +75,8 @@ public class AddEditMovements extends AppCompatActivity implements View.OnClickL
                     ArrayAdapter<String> usersAdapter = new ArrayAdapter(AddEditMovements.this, android.R.layout.simple_dropdown_item_1line, users_names);
                     payer.setAdapter(usersAdapter);
                     receiver.setAdapter(usersAdapter);
+
+                    progressDialog.dismiss();
                 }
 
             }
