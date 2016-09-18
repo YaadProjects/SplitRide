@@ -82,10 +82,10 @@ public class MainActivity extends AppCompatActivity
                     startActivityForResult(intent, 1);
                 }else if(calendars_frag != null && calendars_frag.isVisible()){
                     Intent intent = new Intent(MainActivity.this, AddEditCalendar.class);
-                    startActivity(intent);
+                    startActivityForResult(intent, 1);
                 } else if (users_frag != null && users_frag.isVisible()) {
                     Intent intent = new Intent(MainActivity.this, SearchUsers.class);
-                    startActivity(intent);
+                    startActivityForResult(intent, 1);
                 } else if (vehicles_frag != null && vehicles_frag.isVisible()) {
                     Intent intent = new Intent(MainActivity.this, AddEditVehicle.class);
                     startActivityForResult(intent, 1);
@@ -347,41 +347,14 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    /*
-        REMOVE METHODS
-     */
-
-    public void removeOnClickHandler(View v){
-
-        MyCalendarsFragment myCalendars = (MyCalendarsFragment) getSupportFragmentManager().findFragmentByTag("CALENDARS");
-        UsersFragment users = (UsersFragment) getSupportFragmentManager().findFragmentByTag("PERSONS");
-
-        if (myCalendars != null && myCalendars.isVisible()) {
-            calendarsFragment.removeOnClickHandler(v);
-        } else if (users != null && users.isVisible()) {
-            usersFragment.removeOnClickHandler(v);
-        }
-
-    }
-
-    /*
-        EDIT METHODS
-     */
-
-    public void editOnClickHandler(View v){
-
-        MyCalendarsFragment myCalendars = (MyCalendarsFragment) getSupportFragmentManager().findFragmentByTag("CALENDARS");
-
-        if (myCalendars != null && myCalendars.isVisible()) {
-            calendarsFragment.editOnClickHandler(v);
-        }
-    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         VehiclesFragment vehicles = (VehiclesFragment) getSupportFragmentManager().findFragmentByTag("VEHICLES");
         RoutesFragment route = (RoutesFragment) getSupportFragmentManager().findFragmentByTag("ROUTES");
         TripsFragment trip = (TripsFragment) getSupportFragmentManager().findFragmentByTag("TRIPS");
+        MyCalendarsFragment myCalendars = (MyCalendarsFragment) getSupportFragmentManager().findFragmentByTag("CALENDARS");
+        UsersFragment users = (UsersFragment) getSupportFragmentManager().findFragmentByTag("PERSONS");
 
         if (route != null && route.isVisible()) {
             routesFragment.onActivityResult(requestCode, resultCode, data);
@@ -389,6 +362,10 @@ public class MainActivity extends AppCompatActivity
             vehiclesFragment.onActivityResult(requestCode, resultCode, data);
         } else if (trip != null && trip.isVisible()) {
             vehiclesFragment.onActivityResult(requestCode, resultCode, data);
+        } else if (myCalendars != null && myCalendars.isVisible()) {
+            calendarsFragment.onActivityResult(requestCode, resultCode, data);
+        } else if (users != null && users.isVisible()) {
+            usersFragment.onActivityResult(requestCode, resultCode, data);
         }
     }
 

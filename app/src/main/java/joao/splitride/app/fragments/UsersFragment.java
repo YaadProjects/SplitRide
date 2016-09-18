@@ -1,9 +1,7 @@
 package joao.splitride.app.fragments;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -86,7 +84,7 @@ public class UsersFragment extends ListFragment implements SwipeRefreshLayout.On
                         }
                     }
 
-                    UserListAdapter adapter = new UserListAdapter(getContext(), R.layout.custom_line_list_view_delete_only, users);
+                    UserListAdapter adapter = new UserListAdapter(getContext(), R.layout.listview_item_only_remove, R.id.line_name, users);
                     users_list.setAdapter(adapter);
 
                     progressDialog.dismiss();
@@ -129,8 +127,9 @@ public class UsersFragment extends ListFragment implements SwipeRefreshLayout.On
                         }
                     }
 
-                    UserListAdapter adapter = new UserListAdapter(getContext(), R.layout.listview_item, users);
+                    UserListAdapter adapter = new UserListAdapter(getContext(), R.layout.listview_item_only_remove, R.id.line_name, users);
                     users_list.setAdapter(adapter);
+
                     swipeRefreshLayout.setRefreshing(false);
                 } else e.printStackTrace();
 
@@ -138,49 +137,4 @@ public class UsersFragment extends ListFragment implements SwipeRefreshLayout.On
         });
     }
 
-    public void removeOnClickHandler(View v) {
-        final ParseUser user = (ParseUser) v.getTag();
-
-        AlertDialog dialog = new AlertDialog.Builder(getContext()).create();
-        dialog.setTitle("Delete route");
-        dialog.setMessage("Are you sure you want to delete this user from this calendar?");
-        dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes", new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // TODO Auto-generated method stub
-                ParseQuery<UsersByCalendars> query = ParseQuery.getQuery("UsersByCalendar");
-                query.whereEqualTo("UserID", user.getObjectId());
-
-                query.findInBackground(new FindCallback<UsersByCalendars>() {
-                    @Override
-                    public void done(List<UsersByCalendars> objects, ParseException e) {
-
-                        if (e == null) {
-
-                            for (UsersByCalendars object : objects) {
-                                if (object.getCalendarID().equalsIgnoreCase(sharedPreferences.getString("calendarID", "")))
-                                    object.deleteInBackground();
-
-                            }
-
-                            onRefresh();
-                        }
-                    }
-                });
-
-
-            }
-        });
-        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No", new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // TODO Auto-generated method stub
-
-            }
-        });
-
-        dialog.show();
-    }
 }

@@ -158,6 +158,7 @@ public class SearchUsers extends AppCompatActivity implements View.OnClickListen
                     newUser.saveInBackground();
                 }
 
+                setResult(1);
                 finish();
 
                 break;

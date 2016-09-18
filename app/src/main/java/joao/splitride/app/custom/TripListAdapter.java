@@ -71,7 +71,6 @@ public class TripListAdapter<T> extends ArraySwipeAdapter implements View.OnClic
         View row = convertView;
         TripListAdapter.TripHolder holder = null;
 
-//        if(position < items.size()){
         LayoutInflater inflater = ((Activity) context).getLayoutInflater();
         row = inflater.inflate(layoutResourceId, parent, false);
 
@@ -90,8 +89,6 @@ public class TripListAdapter<T> extends ArraySwipeAdapter implements View.OnClic
         row.setTag(holder);
 
         setupItem(holder);
-//        }
-
 
         return row;
     }
@@ -191,18 +188,6 @@ public class TripListAdapter<T> extends ArraySwipeAdapter implements View.OnClic
 
                 break;
         }
-    }
-
-    private List<Trip> updateList(Trip trip) {
-
-        List<Trip> new_list = new ArrayList<Trip>();
-
-        for (Trip t : items) {
-            if (t.getObjectId().equalsIgnoreCase(trip.getObjectId()) == false)
-                new_list.add(t);
-        }
-
-        return new_list;
     }
 
     public static class TripHolder {

@@ -37,6 +37,7 @@ public class SampleApplication extends Application {
 
                 .build());
 
+
         //Parse.initialize(this, "pg54vFFRG4h8UeR48iQrgER3E0Gz8PTLyOaOMqMJ", "1oGI3bsT0YzUBFQLQ4BRsYH5OHLytj47i1a6qqVp");
     }
 }

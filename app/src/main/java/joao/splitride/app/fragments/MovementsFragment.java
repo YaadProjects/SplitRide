@@ -1,6 +1,7 @@
 package joao.splitride.app.fragments;
 
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -48,6 +49,12 @@ public class MovementsFragment extends Fragment implements SwipeRefreshLayout.On
 
         sharedPreferences = getContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
 
+
+        final ProgressDialog progressDialog = new ProgressDialog(getContext());
+        progressDialog.setTitle("Por favor espere");
+        progressDialog.setMessage("A receber movimentos.");
+        progressDialog.show();
+
         ParseQuery<Movement> query_movements = ParseQuery.getQuery("Movements");
         query_movements.whereEqualTo("CalendarID", sharedPreferences.getString("calendarID", ""));
 
@@ -56,15 +63,17 @@ public class MovementsFragment extends Fragment implements SwipeRefreshLayout.On
             public void done(List<Movement> objects, ParseException e) {
 
                 if (e == null) {
-                    mAdapter = new MyRecyclerViewAdapter(objects);
+                    mAdapter = new MyRecyclerViewAdapter(objects, getContext());
                     mRecyclerView.setAdapter(mAdapter);
+
+                    progressDialog.dismiss();
                 }
             }
         });
 
-        //swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
+        swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
 
-        //    swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setOnRefreshListener(this);
 
         return rootView;
 
@@ -74,6 +83,21 @@ public class MovementsFragment extends Fragment implements SwipeRefreshLayout.On
     @Override
     public void onRefresh() {
 
+        ParseQuery<Movement> query_movements = ParseQuery.getQuery("Movements");
+        query_movements.whereEqualTo("CalendarID", sharedPreferences.getString("calendarID", ""));
+
+        query_movements.findInBackground(new FindCallback<Movement>() {
+            @Override
+            public void done(List<Movement> objects, ParseException e) {
+
+                if (e == null) {
+                    mAdapter = new MyRecyclerViewAdapter(objects, getContext());
+                    mRecyclerView.setAdapter(mAdapter);
+
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+            }
+        });
 
     }
 

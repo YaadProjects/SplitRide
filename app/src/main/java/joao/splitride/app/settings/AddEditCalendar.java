@@ -158,7 +158,7 @@ public class AddEditCalendar extends AppCompatActivity implements View.OnClickLi
                                     }
                                 }
                             });
-
+                            setResult(1);
                             finish();
                         } else {
                             Log.d("error", e.toString());
@@ -283,7 +283,9 @@ public class AddEditCalendar extends AppCompatActivity implements View.OnClickLi
             }
         }
 
-        if (can_finish)
+        if (can_finish) {
+            setResult(1);
             finish();
+        }
     }
 }
