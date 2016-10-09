@@ -1,8 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="horizontal">
+<com.daimajia.swipe.SwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:swipe="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/swipe"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    swipe:leftEdgeSwipeOffset="0dp"
+    swipe:rightEdgeSwipeOffset="0dp">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:tag="Bottom2">
+
+        <ImageButton
+            android:id="@+id/editElement"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:background="#4cd964"
+            android:contentDescription="@string/edit_button_description"
+            android:onClick="editElementOnClickHandler"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp"
+            android:src="@drawable/ic_edit" />
+
+
+        <ImageButton
+            android:id="@+id/removeElement"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:background="@color/caldroid_light_red"
+            android:contentDescription="@string/delete_button_description"
+            android:onClick="removeElementOnClickHandler"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp"
+            android:src="@drawable/ic_delete" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/textViewlayout"
@@ -11,34 +43,22 @@
         android:layout_weight="2"
         android:orientation="vertical">
 
-        <TextView android:id="@+id/line_a"
-                  android:textSize="18dp"
-                  android:layout_width="fill_parent"
-                  android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/line_a"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
+            android:textSize="18dp" />
 
-        <TextView android:id="@+id/line_b"
-                  android:textSize="12dp"
-                  android:textStyle="italic"
-                  android:layout_width="fill_parent"
-                  android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/line_b"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
+            android:textSize="12dp"
+            android:textStyle="italic" />
 
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/editElement"
-        android:contentDescription="@string/edit_button_description"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
-        android:onClick="editElementOnClickHandler"
-        android:src="@drawable/ic_edit" />
 
-
-    <ImageButton
-        android:id="@+id/removeElement"
-        android:contentDescription="@string/delete_button_description"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
-        android:onClick="removeElementOnClickHandler"
-        android:src="@drawable/ic_delete" />
-
-</LinearLayout>
+</com.daimajia.swipe.SwipeLayout>

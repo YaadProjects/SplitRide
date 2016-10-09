@@ -36,7 +36,7 @@ import java.util.List;
 
 import joao.splitride.R;
 import joao.splitride.app.entities.PassengersInTrip;
-import joao.splitride.app.entities.Route;
+import joao.splitride.app.entities.Segment;
 import joao.splitride.app.entities.Trip;
 import joao.splitride.app.entities.Vehicle;
 
@@ -54,13 +54,13 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
     private Spinner drivers, vehicles;
     private CheckBox roundtrip;
     private HashMap<String, ArrayList<String>> drivers_and_vehicles = new HashMap<>();
-    private ArrayList<String> passengerNames = new ArrayList<>(), passengerRoutes = new ArrayList<>();
+    private ArrayList<String> passengerNames = new ArrayList<>(), passengerSegments = new ArrayList<>();
     private ArrayList<String> usernames = new ArrayList<String>(), vehiclesNames = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.trips_layout);
+        setContentView(R.layout.add_trips_layout);
 
         parentLayout = (RelativeLayout) findViewById(R.id.parentLayout);
         save = (Button) findViewById(R.id.saveTrip);
@@ -157,7 +157,7 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
                     else roundtrip.setSelected(false);
 
                     passengerNames = editTrip.getStringArrayListExtra("passengers_names");
-                    passengerRoutes = editTrip.getStringArrayListExtra("passengers_routes");
+                    passengerSegments = editTrip.getStringArrayListExtra("passengers_segments");
                 }
 
             }
@@ -173,7 +173,7 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
 
     }
 
-    private void saveTrip(String date, String driver, String vehicle, boolean roundtrip, final ArrayList<String> passengers, final ArrayList<String> routes){
+    private void saveTrip(String date, String driver, String vehicle, boolean roundtrip, final ArrayList<String> passengers, final ArrayList<String> segments) {
 
         ParseQuery<ParseUser> queryUser = ParseUser.getQuery();
         queryUser.whereEqualTo("username", driver);
@@ -205,19 +205,19 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
                             ParseQuery<ParseUser> queryUser = ParseUser.getQuery();
                             queryUser.whereEqualTo("username", passengers.get(i));
 
-                            ParseQuery<Route> queryRoute = ParseQuery.getQuery("Routes");
-                            queryRoute.whereEqualTo("Name", routes.get(i));
-                            queryRoute.whereEqualTo("calendarID", sharedPreferences.getString("calendarID", ""));
+                            ParseQuery<Segment> querySegment = ParseQuery.getQuery("Segments");
+                            querySegment.whereEqualTo("Name", segments.get(i));
+                            querySegment.whereEqualTo("calendarID", sharedPreferences.getString("calendarID", ""));
 
 
                             try {
                                 String passengerID = queryUser.getFirst().getObjectId();
-                                String routeID = queryRoute.getFirst().getObjectId();
+                                String segmentID = querySegment.getFirst().getObjectId();
 
                                 PassengersInTrip passengersInTrip = new PassengersInTrip();
 
                                 passengersInTrip.setPassengerID(passengerID);
-                                passengersInTrip.setRouteID(routeID);
+                                passengersInTrip.setSegmentID(segmentID);
                                 passengersInTrip.setTripID(trip.getObjectId());
                                 passengersInTrip.setCalendarID(sharedPreferences.getString("calendarID", ""));
 
@@ -246,7 +246,7 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
             case R.id.saveTrip:
 
                 if(!date.getText().toString().equalsIgnoreCase("DD/MM/YYYY") && !passengerNames.isEmpty()){
-                    saveTrip(date.getText().toString(), usernames.get(drivers.getSelectedItemPosition()), vehiclesNames.get(vehicles.getSelectedItemPosition()), roundtrip.isChecked(), passengerNames, passengerRoutes);
+                    saveTrip(date.getText().toString(), usernames.get(drivers.getSelectedItemPosition()), vehiclesNames.get(vehicles.getSelectedItemPosition()), roundtrip.isChecked(), passengerNames, passengerSegments);
 
                     //setResult(1);
                     finish();
@@ -273,14 +273,12 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
             case R.id.passengerListButton:
                 Intent intent = new Intent(AddEditTrip.this, PassengersByTrips.class);
 
-                Log.w("applications", passengerNames.toString());
-                Log.w("applications", passengerRoutes.toString());
-
                 intent.putStringArrayListExtra("passengersNames", passengerNames);
-                intent.putStringArrayListExtra("passengersRoutes", passengerRoutes);
+                intent.putStringArrayListExtra("passengersSegments", passengerSegments);
                 startActivityForResult(intent, 1);
 
                 break;
+
 
             case R.id.calendarButton:
                 DialogFragment newFragment = new DatePickerFragment();
@@ -307,12 +305,31 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
         if (resultCode == 1) {
 
             passengerNames = data.getStringArrayListExtra("passengersNames");
-            passengerRoutes = data.getStringArrayListExtra("passengersRoutes");
+            passengerSegments = data.getStringArrayListExtra("passengersSegments");
 
             Log.w("application", passengerNames.toString());
-            Log.w("application", passengerRoutes.toString());
+            Log.w("application", passengerSegments.toString());
         }
     }
+
+    public void spinnerClick(View v) {
+
+        String spinner = v.getTag().toString();
+
+        switch (spinner) {
+
+            case "vehicleSpinner":
+                vehicles.performClick();
+                break;
+
+            case "driverSpinner":
+                drivers.performClick();
+                break;
+        }
+    }
+
+
+
 
     public static class DatePickerFragment extends DialogFragment
             implements DatePickerDialog.OnDateSetListener {

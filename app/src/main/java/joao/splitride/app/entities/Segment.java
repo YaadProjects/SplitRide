@@ -6,10 +6,10 @@ import com.parse.ParseObject;
 /**
  * Created by Joao on 03-12-2015.
  */
-@ParseClassName("Routes")
-public class Route extends ParseObject{
+@ParseClassName("Segments")
+public class Segment extends ParseObject {
 
-    public Route(){
+    public Segment() {
 
     }
 
@@ -33,19 +33,19 @@ public class Route extends ParseObject{
         put("calendarID", id);
     }
 
-    public void setCost(double cost){
-        put("Cost", cost);
-    }
-
     public double getCost(){
         return getDouble("Cost");
     }
 
-    public void setDistance(double distance){
-        put("Distance", distance);
+    public void setCost(double cost) {
+        put("Cost", cost);
     }
 
     public double getDistance(){
         return getDouble("Distance");
+    }
+
+    public void setDistance(double distance) {
+        put("Distance", distance);
     }
 }

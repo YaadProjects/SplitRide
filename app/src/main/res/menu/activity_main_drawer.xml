@@ -19,9 +19,9 @@
     <item android:title="Calendar settings">
         <menu>
             <item
-                android:id="@+id/nav_routes"
-                android:icon="@drawable/ic_routes"
-                android:title="Routes" />
+                android:id="@+id/nav_segments"
+                android:icon="@drawable/ic_segments"
+                android:title="Segments" />
             <item
                 android:id="@+id/nav_persons"
                 android:icon="@drawable/ic_persons"

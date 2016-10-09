@@ -5,12 +5,15 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.parse.ParseException;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.util.List;
 
@@ -19,8 +22,7 @@ import joao.splitride.app.entities.Movement;
 
 public class MyRecyclerViewAdapter extends RecyclerView
         .Adapter<MyRecyclerViewAdapter
-        .DataObjectHolder>
-        implements View.OnClickListener {
+        .DataObjectHolder> {
     private List<Movement> mDataset;
     private Context context;
 
@@ -40,9 +42,31 @@ public class MyRecyclerViewAdapter extends RecyclerView
 
     @Override
     public void onBindViewHolder(DataObjectHolder holder, final int position) {
-        holder.label2.setText("From: " + mDataset.get(position).getFromUserID() + " To: " + mDataset.get(position).getToUserID());
+
+        ParseQuery<ParseUser> query_from = ParseUser.getQuery();
+        query_from.whereEqualTo("objectId", mDataset.get(position).getFromUserID());
+
+        ParseQuery<ParseUser> query_to = ParseUser.getQuery();
+        query_to.whereEqualTo("objectId", mDataset.get(position).getToUserID());
+
+        try {
+            ParseUser userFrom = query_from.getFirst();
+            ParseUser userTo = query_to.getFirst();
+
+            holder.label2.setText("From: " + userFrom.getUsername() + " To: " + userTo.getUsername());
+        } catch (ParseException e1) {
+            e1.printStackTrace();
+        }
+
         holder.label1.setText("Valor: " + mDataset.get(position).getValue() + "");
-        holder.edit.setOnClickListener(this);
+
+        holder.edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
         holder.delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -84,23 +108,6 @@ public class MyRecyclerViewAdapter extends RecyclerView
     @Override
     public int getItemCount() {
         return mDataset.size();
-    }
-
-    @Override
-    public void onClick(View v) {
-
-        switch (v.getId()) {
-
-            case R.id.edit:
-                Log.d("cenas", "CARREGUEI NO BOTÃO DE EDIT!!!!");
-                break;
-
-/*            case R.id.delete:
-                Log.d("cenas",  );
-                Log.d("cenas", "CARREGUEI NO BOTÃO DE DELETE!!!!");
-                break;*/
-        }
-
     }
 
     public static class DataObjectHolder extends RecyclerView.ViewHolder {

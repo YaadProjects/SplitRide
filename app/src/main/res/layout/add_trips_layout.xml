@@ -2,8 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/parentLayout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbarlayout"
@@ -20,27 +21,18 @@
 
     </android.support.design.widget.AppBarLayout>
 
-
-    <ListView
-        android:id="@+id/passengerList"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/buttonlayout"
-        android:layout_below="@+id/addPassenger"
-        android:layout_marginLeft="10dp">
-
-    </ListView>
-
     <LinearLayout
         android:id="@+id/buttonlayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="10dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="12dp"
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/savePassengers"
+            android:id="@+id/saveTrip"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:layout_weight="1"
@@ -49,7 +41,7 @@
             android:theme="@style/ConfirmButton" />
 
         <Button
-            android:id="@+id/cancelPassengers"
+            android:id="@+id/cancelTrip"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:layout_weight="1"
@@ -59,63 +51,62 @@
 
     </LinearLayout>
 
+    <Button
+        android:id="@+id/passengerListButton"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tablelayout"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="54dp"
+        android:drawableLeft="@drawable/ic_action_view_as_list"
+        android:onClick="listOfPassengersClickHandler"
+        android:text="List of passengers"
+        android:textColor="@android:color/white"
+        android:theme="@style/ConfirmButton" />
+
+
     <TableLayout
-        android:id="@+id/tableLayout"
-        android:layout_width="wrap_content"
+        android:id="@+id/tablelayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/appbarlayout"
-        android:layout_marginLeft="10dp"
         android:shrinkColumns="*"
         android:stretchColumns="*">
 
         <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="10dp">
 
             <TextView
                 android:id="@+id/textView1"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:text="Passenger"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                android:text="Date"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@android:color/black"
                 android:textStyle="bold" />
 
-            <LinearLayout
-                android:layout_width="wrap_content"
+            <EditText
+                android:id="@+id/date"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="5dp"
+                android:layout_column="1"
                 android:layout_weight="1"
-                android:background="@drawable/spinner_border_background"
-                android:orientation="horizontal">
+                android:text="DD/MM/YYYY"
+                android:textAppearance="?android:attr/textAppearanceMedium">
 
-                <Spinner
-                    android:id="@+id/passengerSpinner"
-                    android:layout_width="170dp"
-                    android:layout_height="40dp"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="5dp"
-                    android:background="@android:color/transparent"
-                    android:gravity="center"
-                    android:spinnerMode="dropdown" />
+            </EditText>
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_gravity="center"
-                    android:layout_weight="0.41"
-                    android:onClick="spinnerClick"
-                    android:src="@drawable/spinner_arrow"
-                    android:tag="passengerSpinner" />
-
-            </LinearLayout>
+            <ImageButton
+                android:id="@+id/calendarButton"
+                android:layout_width="1dp"
+                android:layout_height="40dp"
+                android:src="@drawable/calendar_icon" />
 
         </TableRow>
 
@@ -125,12 +116,13 @@
             android:layout_marginTop="10dp">
 
             <TextView
-                android:id="@+id/textView2"
+                android:id="@+id/textView3"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_marginLeft="10dp"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="Segment"
+                android:text="Driver"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@android:color/black"
                 android:textStyle="bold" />
@@ -138,49 +130,115 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
+                android:layout_column="1"
                 android:layout_marginRight="5dp"
+                android:layout_span="2"
                 android:layout_weight="1"
                 android:background="@drawable/spinner_border_background"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:weightSum="1">
 
-                <joao.splitride.app.custom.MultiSelectionSpinner
-                    android:id="@+id/segmentSpinner"
+                <Spinner
+                    android:id="@+id/driverSpinner"
                     android:layout_width="170dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center"
                     android:layout_marginLeft="5dp"
                     android:background="@android:color/transparent"
                     android:gravity="center"
-                    android:spinnerMode="dropdown">
-
-                </joao.splitride.app.custom.MultiSelectionSpinner>
+                    android:spinnerMode="dropdown" />
 
                 <ImageView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_gravity="center"
-                    android:layout_weight="0.41"
                     android:onClick="spinnerClick"
                     android:src="@drawable/spinner_arrow"
-                    android:tag="segmentSpinner" />
+                    android:tag="driverSpinner" />
+
+            </LinearLayout>
+
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="Vehicle"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@android:color/black"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
+                android:layout_marginRight="5dp"
+                android:layout_span="2"
+                android:layout_weight="1"
+                android:background="@drawable/spinner_border_background"
+                android:orientation="horizontal"
+                android:weightSum="1">
+
+                <Spinner
+                    android:id="@+id/vehicleSpinner"
+                    android:layout_width="170dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="5dp"
+                    android:background="@android:color/transparent"
+                    android:gravity="center"
+                    android:spinnerMode="dropdown" />
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:onClick="spinnerClick"
+                    android:src="@drawable/spinner_arrow"
+                    android:tag="vehicleSpinner" />
 
             </LinearLayout>
 
         </TableRow>
-    </TableLayout>
 
-    <Button
-        android:id="@+id/addPassenger"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tableLayout"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:text="Add"
-        android:textColor="@android:color/white"
-        android:theme="@style/ConfirmButton" />
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="Round trip"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@android:color/black"
+                android:textStyle="bold" />
+
+            <CheckBox
+                android:id="@+id/ida_volta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_span="2" />
+
+        </TableRow>
+    </TableLayout>
 
 </RelativeLayout>

@@ -8,7 +8,7 @@ import com.parse.ParseObject;
 import joao.splitride.app.entities.Calendars;
 import joao.splitride.app.entities.Movement;
 import joao.splitride.app.entities.PassengersInTrip;
-import joao.splitride.app.entities.Route;
+import joao.splitride.app.entities.Segment;
 import joao.splitride.app.entities.Trip;
 import joao.splitride.app.entities.UsersByCalendars;
 import joao.splitride.app.entities.Vehicle;
@@ -22,7 +22,7 @@ public class SampleApplication extends Application {
     public void onCreate(){
         super.onCreate();
         Parse.enableLocalDatastore(this);
-        ParseObject.registerSubclass(Route.class);
+        ParseObject.registerSubclass(Segment.class);
         ParseObject.registerSubclass(Calendars.class);
         ParseObject.registerSubclass(UsersByCalendars.class);
         ParseObject.registerSubclass(Vehicle.class);

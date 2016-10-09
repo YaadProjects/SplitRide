@@ -126,16 +126,16 @@ public class TripListAdapter<T> extends ArraySwipeAdapter implements View.OnClic
                     public void done(List<PassengersInTrip> objects, ParseException e) {
 
                         ArrayList<String> passengers_names = new ArrayList<String>();
-                        ArrayList<String> passengers_routes = new ArrayList<String>();
+                        ArrayList<String> passengers_segments = new ArrayList<String>();
 
                         for (PassengersInTrip p : objects) {
 
                             passengers_names.add(p.getPassengerID());
-                            passengers_routes.add(p.getRouteID());
+                            passengers_segments.add(p.getSegmentID());
                         }
 
                         intent.putExtra("passengers_names", passengers_names);
-                        intent.putExtra("passengers_routes", passengers_routes);
+                        intent.putExtra("passengers_segments", passengers_segments);
 
                         context.startActivity(intent);
                     }

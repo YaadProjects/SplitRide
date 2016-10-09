@@ -21,7 +21,7 @@ import java.util.List;
 
 import joao.splitride.R;
 import joao.splitride.app.custom.VehicleListAdapter;
-import joao.splitride.app.entities.Route;
+import joao.splitride.app.entities.Segment;
 import joao.splitride.app.entities.Vehicle;
 
 
@@ -64,7 +64,7 @@ public class VehiclesFragment extends ListFragment implements SwipeRefreshLayout
             public void done(List<Vehicle> vehiclesList, ParseException error) {
                 if (error == null) {
 
-                    vehicles_list.setAdapter(new VehicleListAdapter<Route>(getContext(), R.layout.listview_item, R.id.line_name, vehiclesList));
+                    vehicles_list.setAdapter(new VehicleListAdapter<Segment>(getContext(), R.layout.listview_item, R.id.line_name, vehiclesList));
 
                     progressDialog.dismiss();
                 } else {

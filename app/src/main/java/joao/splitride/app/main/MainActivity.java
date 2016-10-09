@@ -18,8 +18,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -28,20 +30,22 @@ import com.roomorama.caldroid.CaldroidListener;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import joao.splitride.R;
 import joao.splitride.app.entities.Trip;
 import joao.splitride.app.entities.UsersByCalendars;
+import joao.splitride.app.entities.Vehicle;
 import joao.splitride.app.fragments.MovementsFragment;
 import joao.splitride.app.fragments.MyCalendarsFragment;
-import joao.splitride.app.fragments.RoutesFragment;
+import joao.splitride.app.fragments.SegmentsFragment;
 import joao.splitride.app.fragments.TripsFragment;
 import joao.splitride.app.fragments.UsersFragment;
 import joao.splitride.app.fragments.VehiclesFragment;
 import joao.splitride.app.login.DispatchActivity;
 import joao.splitride.app.settings.AddEditCalendar;
 import joao.splitride.app.settings.AddEditMovements;
-import joao.splitride.app.settings.AddEditRoute;
+import joao.splitride.app.settings.AddEditSegment;
 import joao.splitride.app.settings.AddEditTrip;
 import joao.splitride.app.settings.AddEditVehicle;
 import joao.splitride.app.settings.SearchUsers;
@@ -50,7 +54,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private FloatingActionButton fab;
-    private RoutesFragment routesFragment;
+    private SegmentsFragment segmentsFragment;
     private UsersFragment usersFragment;
     private MyCalendarsFragment calendarsFragment;
     private VehiclesFragment vehiclesFragment;
@@ -58,6 +62,7 @@ public class MainActivity extends AppCompatActivity
     private TripsFragment tripsFragment;
     private SharedPreferences sharedPreferences;
     private CaldroidListener calendarListener;
+    private Button calculate_month;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,19 +71,20 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                RoutesFragment routes_frag = (RoutesFragment) getSupportFragmentManager().findFragmentByTag("ROUTES");
+                SegmentsFragment segments_frag = (SegmentsFragment) getSupportFragmentManager().findFragmentByTag("SEGMENTS");
                 MyCalendarsFragment calendars_frag = (MyCalendarsFragment) getSupportFragmentManager().findFragmentByTag("CALENDARS");
                 UsersFragment users_frag = (UsersFragment) getSupportFragmentManager().findFragmentByTag("PERSONS");
                 VehiclesFragment vehicles_frag = (VehiclesFragment) getSupportFragmentManager().findFragmentByTag("VEHICLES");
                 MovementsFragment movements_frag = (MovementsFragment) getSupportFragmentManager().findFragmentByTag("MOVEMENTS");
 
-                if(routes_frag != null && routes_frag.isVisible()){
-                    Intent intent = new Intent(MainActivity.this, AddEditRoute.class);
+                if (segments_frag != null && segments_frag.isVisible()) {
+                    Intent intent = new Intent(MainActivity.this, AddEditSegment.class);
                     startActivityForResult(intent, 1);
                 }else if(calendars_frag != null && calendars_frag.isVisible()){
                     Intent intent = new Intent(MainActivity.this, AddEditCalendar.class);
@@ -108,7 +114,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        CaldroidFragment caldroidFragment = new CaldroidFragment();
+        final CaldroidFragment caldroidFragment = new CaldroidFragment();
         Bundle args = new Bundle();
         Calendar cal = Calendar.getInstance();
         args.putInt(CaldroidFragment.MONTH, cal.get(Calendar.MONTH) + 1);
@@ -118,6 +124,51 @@ public class MainActivity extends AppCompatActivity
         FragmentTransaction t = getSupportFragmentManager().beginTransaction();
         t.replace(R.id.calendar1, caldroidFragment);
         t.commit();
+
+        calculate_month = (Button) findViewById(R.id.calculate_month);
+        calculate_month.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), caldroidFragment.getMonth() + " " + caldroidFragment.getYear(), Toast.LENGTH_SHORT).show();
+
+                sharedPreferences = getApplication().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
+
+                ParseQuery<Trip> query_trip = ParseQuery.getQuery("Trips");
+                query_trip.whereEqualTo("CalendarID", sharedPreferences.getString("calendarID", ""));
+                query_trip.whereContains("Date", caldroidFragment.getMonth() + "/" + caldroidFragment.getYear());
+
+                query_trip.findInBackground(new FindCallback<Trip>() {
+                    @Override
+                    public void done(List<Trip> objects, ParseException e) {
+
+                        if (e == null) {
+
+                            double month_total = 0.0;
+
+                            for (Trip trip : objects) {
+                                ParseQuery<Vehicle> query_vehicle = ParseQuery.getQuery("Vehicles");
+                                query_vehicle.whereEqualTo("objectId", trip.getVehicleID());
+
+                                try {
+                                    double consumption = query_vehicle.getFirst().getVehicleConsumption();
+
+
+                                } catch (ParseException e1) {
+                                    e1.printStackTrace();
+                                }
+                            }
+
+
+                            Log.d("applications", objects.toString());
+
+                        }
+                    }
+                });
+
+
+                //(km/100)*comsumption+tolls
+            }
+        });
 
 
         // Ver se tem já alguma viagem para aquele dia
@@ -133,8 +184,6 @@ public class MainActivity extends AppCompatActivity
                 ParseQuery<Trip> tripQuery = ParseQuery.getQuery("Trips");
                 tripQuery.whereEqualTo("CalendarID", sharedPreferences.getString("calendarID", ""));
                 tripQuery.whereEqualTo("Date", dateFormat);
-
-                Log.w("applications", dateFormat);
 
                 try {
                     if (tripQuery.count() > 0) {
@@ -270,13 +319,13 @@ public class MainActivity extends AppCompatActivity
                 });
                 alertDialog.show();
             }
-        } else if (id == R.id.nav_routes) {
+        } else if (id == R.id.nav_segments) {
             if(hasCalendars()){
-                routesFragment = new RoutesFragment();
+                segmentsFragment = new SegmentsFragment();
 
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
-                transaction.replace(R.id.calendar1, routesFragment, "ROUTES");
+                transaction.replace(R.id.calendar1, segmentsFragment, "SEGMENTS");
                 transaction.addToBackStack(null);
 
                 // Commit the transaction
@@ -351,13 +400,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         VehiclesFragment vehicles = (VehiclesFragment) getSupportFragmentManager().findFragmentByTag("VEHICLES");
-        RoutesFragment route = (RoutesFragment) getSupportFragmentManager().findFragmentByTag("ROUTES");
+        SegmentsFragment segment = (SegmentsFragment) getSupportFragmentManager().findFragmentByTag("SEGMENTS");
         TripsFragment trip = (TripsFragment) getSupportFragmentManager().findFragmentByTag("TRIPS");
         MyCalendarsFragment myCalendars = (MyCalendarsFragment) getSupportFragmentManager().findFragmentByTag("CALENDARS");
         UsersFragment users = (UsersFragment) getSupportFragmentManager().findFragmentByTag("PERSONS");
 
-        if (route != null && route.isVisible()) {
-            routesFragment.onActivityResult(requestCode, resultCode, data);
+        if (segment != null && segment.isVisible()) {
+            segmentsFragment.onActivityResult(requestCode, resultCode, data);
         } else if (vehicles != null && vehicles.isVisible()) {
             vehiclesFragment.onActivityResult(requestCode, resultCode, data);
         } else if (trip != null && trip.isVisible()) {

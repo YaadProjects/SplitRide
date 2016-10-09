@@ -20,36 +20,36 @@ import com.parse.ParseQuery;
 import java.util.List;
 
 import joao.splitride.R;
-import joao.splitride.app.entities.Route;
-import joao.splitride.app.settings.AddEditRoute;
+import joao.splitride.app.entities.Segment;
+import joao.splitride.app.settings.AddEditSegment;
 
 
-public class RouteListAdapter<T> extends ArraySwipeAdapter implements View.OnClickListener {
-    private List<Route> items;
+public class SegmentListAdapter<T> extends ArraySwipeAdapter implements View.OnClickListener {
+    private List<Segment> items;
     private int layoutResourceId;
     private Context context;
 
-    public RouteListAdapter(Context context, int resource) {
+    public SegmentListAdapter(Context context, int resource) {
         super(context, resource);
     }
 
-    public RouteListAdapter(Context context, int resource, int textViewResourceId) {
+    public SegmentListAdapter(Context context, int resource, int textViewResourceId) {
         super(context, resource, textViewResourceId);
     }
 
-    public RouteListAdapter(Context context, int resource, Object[] objects) {
+    public SegmentListAdapter(Context context, int resource, Object[] objects) {
         super(context, resource, objects);
     }
 
-    public RouteListAdapter(Context context, int resource, int textViewResourceId, Object[] objects) {
+    public SegmentListAdapter(Context context, int resource, int textViewResourceId, Object[] objects) {
         super(context, resource, textViewResourceId, objects);
     }
 
-    public RouteListAdapter(Context context, int resource, List objects) {
+    public SegmentListAdapter(Context context, int resource, List objects) {
         super(context, resource, objects);
     }
 
-    public RouteListAdapter(Context context, int resource, int textViewResourceId, List objects) {
+    public SegmentListAdapter(Context context, int resource, int textViewResourceId, List objects) {
         super(context, resource, textViewResourceId, objects);
 
         this.layoutResourceId = resource;
@@ -71,11 +71,11 @@ public class RouteListAdapter<T> extends ArraySwipeAdapter implements View.OnCli
         row = inflater.inflate(layoutResourceId, parent, false);
 
         holder = new RouteHolder();
-        holder.route = items.get(position);
+        holder.segment = items.get(position);
         holder.edit = (ImageView) row.findViewById(R.id.edit);
         holder.remove = (ImageView) row.findViewById(R.id.delete);
-        holder.edit.setTag(holder.route);
-        holder.remove.setTag(holder.route);
+        holder.edit.setTag(holder.segment);
+        holder.remove.setTag(holder.segment);
 
         holder.name = (TextView)row.findViewById(R.id.line_name);
 
@@ -90,7 +90,7 @@ public class RouteListAdapter<T> extends ArraySwipeAdapter implements View.OnCli
     }
 
     private void setupItem(RouteHolder holder) {
-        holder.name.setText(holder.route.getName());
+        holder.name.setText(holder.segment.getName());
     }
 
     @Override
@@ -99,40 +99,40 @@ public class RouteListAdapter<T> extends ArraySwipeAdapter implements View.OnCli
         switch (v.getId()) {
 
             case R.id.edit:
-                final Route route = (Route) v.getTag();
+                final Segment segment = (Segment) v.getTag();
 
-                final Intent intent = new Intent(context, AddEditRoute.class);
-                intent.putExtra("id", route.getObjectId());
-                intent.putExtra("name", route.getName());
-                intent.putExtra("distance", route.getDistance());
-                intent.putExtra("cost", route.getCost());
+                final Intent intent = new Intent(context, AddEditSegment.class);
+                intent.putExtra("id", segment.getObjectId());
+                intent.putExtra("name", segment.getName());
+                intent.putExtra("distance", segment.getDistance());
+                intent.putExtra("cost", segment.getCost());
 
                 ((Activity) context).startActivityForResult(intent, 1);
                 break;
 
             case R.id.delete:
-                final Route route2 = (Route) v.getTag();
+                final Segment segment2 = (Segment) v.getTag();
 
                 AlertDialog dialog = new AlertDialog.Builder(getContext()).create();
-                dialog.setTitle("Delete route");
-                dialog.setMessage("Are you sure you want to delete this route?");
+                dialog.setTitle("Delete segment");
+                dialog.setMessage("Are you sure you want to delete this segment?");
                 dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes", new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // TODO Auto-generated method stub
-                        ParseQuery<Route> query = ParseQuery.getQuery("Routes");
-                        query.whereEqualTo("objectId", route2.getObjectId());
+                        ParseQuery<Segment> query = ParseQuery.getQuery("Routes");
+                        query.whereEqualTo("objectId", segment2.getObjectId());
 
-                        query.findInBackground(new FindCallback<Route>() {
+                        query.findInBackground(new FindCallback<Segment>() {
                             @Override
-                            public void done(List<Route> objects, ParseException e) {
+                            public void done(List<Segment> objects, ParseException e) {
                                 if (e == null) {
                                     // object will be your game score
-                                    Route object = objects.get(0);
+                                    Segment object = objects.get(0);
                                     object.deleteInBackground();
 
-                                    items.remove(route2);
+                                    items.remove(segment2);
                                     notifyDataSetChanged();
                                 } else {
                                     Log.d("Error", e.getMessage());
@@ -159,7 +159,7 @@ public class RouteListAdapter<T> extends ArraySwipeAdapter implements View.OnCli
 
 
     public static class RouteHolder{
-        Route route;
+        Segment segment;
         TextView name;
         ImageView edit, remove;
     }

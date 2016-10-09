@@ -29,7 +29,6 @@
     <string name="title_activity_persons">Persons</string>
     <string name="title_activity_vehicles">Vehicles</string>
     <string name="title_activity_movements">Movements</string>
-    <string name="title_activity_routes">Routes</string>
     <string name="title_activity_segments">Segments</string>
     <string name="title_activity_trips">Trips</string>
     <string name="title_activity_add_transaction">Add payment</string>
@@ -46,12 +45,9 @@
     <string name="cancel">Cancel</string>
     <string name="name">Name</string>
     <string name="initials">Initials</string>
-    <string name="usual_route">Usual Route</string>
-    <string name="route_name_example">Ex. London-Sutton</string>
-    <string name="touch_to_add_segments">Touch to add new segments to this route</string>
     <string name="segment_name_example">Ex. London-Mitcham, Mitcham-Sutton</string>
-    <string name="distance">Distance (km)</string>
-    <string name="distance_example" translatable="false">Ex. 10</string>
+    <string name="distance">Distance</string>
+    <string name="distance_example" translatable="false">Ex. 10 km</string>
     <string name="cost">Cost</string>
     <string name="cost_example" translatable="false">Ex. 2.5 €</string>
     <string name="vehicle_name" translatable="false">Ex. Corolla</string>
@@ -72,11 +68,6 @@
     <string name="person_added">Person added.</string>
     <string name="edit_success">Edited successfully</string>
     <string name="edit_error">It was not possible to edit </string>
-    <string name="edit_route">Edit Route</string>
-    <string name="add_route">Add Route</string>
-    <string name="route_name_mandatory">Route name is mandatory.</string>
-    <string name="route">Route</string>
-    <string name="route_added">Route added.</string>
     <string name="select_segments">Select the desired segments</string>
     <string name="edit_segment">Edit Segment</string>
     <string name="add_segment">Add Segment</string>

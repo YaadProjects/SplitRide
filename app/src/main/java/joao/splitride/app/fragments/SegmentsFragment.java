@@ -20,14 +20,14 @@ import com.parse.ParseQuery;
 import java.util.List;
 
 import joao.splitride.R;
-import joao.splitride.app.custom.RouteListAdapter;
-import joao.splitride.app.entities.Route;
+import joao.splitride.app.custom.SegmentListAdapter;
+import joao.splitride.app.entities.Segment;
 
 
-public class RoutesFragment extends ListFragment implements SwipeRefreshLayout.OnRefreshListener{
+public class SegmentsFragment extends ListFragment implements SwipeRefreshLayout.OnRefreshListener {
 
-    private ListView routes_list;
-    private RouteListAdapter mAdapter;
+    private ListView segments_list;
+    private SegmentListAdapter mAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private SharedPreferences sharedPreferences;
 
@@ -36,7 +36,7 @@ public class RoutesFragment extends ListFragment implements SwipeRefreshLayout.O
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_list_layout, container, false);
 
-        routes_list = (ListView) rootView.findViewById(android.R.id.list);
+        segments_list = (ListView) rootView.findViewById(android.R.id.list);
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
 
 
@@ -51,20 +51,20 @@ public class RoutesFragment extends ListFragment implements SwipeRefreshLayout.O
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ParseQuery<Route> query = ParseQuery.getQuery("Routes");
+        ParseQuery<Segment> query = ParseQuery.getQuery("Segments");
         query.whereEqualTo("calendarID", sharedPreferences.getString("calendarID", ""));
 
         final ProgressDialog progressDialog = new ProgressDialog(getContext());
         progressDialog.setTitle("Por favor espere");
-        progressDialog.setMessage("A receber rotas.");
+        progressDialog.setMessage("A receber segmentos.");
         progressDialog.show();
 
-        query.findInBackground(new FindCallback<Route>() {
+        query.findInBackground(new FindCallback<Segment>() {
             @Override
-            public void done(List<Route> routesList, ParseException error) {
+            public void done(List<Segment> segmentsList, ParseException error) {
                 if (error == null) {
-                    mAdapter = new RouteListAdapter<Route>(getContext(), R.layout.listview_item, R.id.line_name, routesList);
-                    routes_list.setAdapter(mAdapter);
+                    mAdapter = new SegmentListAdapter<Segment>(getContext(), R.layout.listview_item, R.id.line_name, segmentsList);
+                    segments_list.setAdapter(mAdapter);
 
                     progressDialog.dismiss();
 
@@ -79,14 +79,14 @@ public class RoutesFragment extends ListFragment implements SwipeRefreshLayout.O
 
     @Override
     public void onRefresh() {
-        ParseQuery<Route> query = ParseQuery.getQuery("Routes");
+        ParseQuery<Segment> query = ParseQuery.getQuery("Segments");
         query.whereEqualTo("calendarID", sharedPreferences.getString("calendarID", ""));
 
-        query.findInBackground(new FindCallback<Route>() {
+        query.findInBackground(new FindCallback<Segment>() {
             @Override
-            public void done(List<Route> routesList, ParseException error) {
+            public void done(List<Segment> segmentsList, ParseException error) {
                 if (error == null) {
-                    routes_list.setAdapter(new RouteListAdapter<Route>(getContext(), R.layout.listview_item, R.id.line_name, routesList));
+                    segments_list.setAdapter(new SegmentListAdapter<Segment>(getContext(), R.layout.listview_item, R.id.line_name, segmentsList));
 
                     swipeRefreshLayout.setRefreshing(false);
 

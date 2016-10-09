@@ -141,7 +141,7 @@ public class CalendarListAdapter extends ArraySwipeAdapter implements View.OnCli
 				final Calendars calendar = (Calendars) v.getTag();
 
 				AlertDialog dialog = new AlertDialog.Builder(getContext()).create();
-				dialog.setTitle("Delete route");
+				dialog.setTitle("Delete segment");
 				dialog.setMessage("Are you sure you want to delete this calendar?");
 				dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes", new DialogInterface.OnClickListener() {
 

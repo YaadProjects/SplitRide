@@ -30,18 +30,18 @@ import java.util.HashMap;
 import java.util.List;
 
 import joao.splitride.R;
-import joao.splitride.app.entities.Route;
+import joao.splitride.app.custom.MultiSelectionSpinner;
+import joao.splitride.app.entities.Segment;
 import joao.splitride.app.entities.UsersByCalendars;
 
-/**
- * Created by joaoferreira on 31/05/16.
- */
+
 public class PassengersByTrips extends AppCompatActivity implements View.OnClickListener {
 
-    private Spinner route, passenger;
+    private Spinner passenger;
+    private MultiSelectionSpinner segment;
     private SharedPreferences sharedPreferences;
     private Button save, cancel, addPassenger;
-    private ArrayList<String> routesName, usernames;
+    private ArrayList<String> segmentsName, usernames;
     private ListView passengerList;
     private ArrayList<HashMap<String, String>> pass = new ArrayList<HashMap<String, String>>();
     private SimpleAdapter simpleAdapter;
@@ -54,7 +54,7 @@ public class PassengersByTrips extends AppCompatActivity implements View.OnClick
 
         parentLayout = (RelativeLayout) findViewById(R.id.parentLayout);
 
-        route = (Spinner) findViewById(R.id.routeSpinner);
+        segment = (MultiSelectionSpinner) findViewById(R.id.segmentSpinner);
         passenger = (Spinner) findViewById(R.id.passengerSpinner);
         addPassenger = (Button) findViewById(R.id.addPassenger);
         passengerList = (ListView) findViewById(R.id.passengerList);
@@ -68,21 +68,21 @@ public class PassengersByTrips extends AppCompatActivity implements View.OnClick
         progressDialog.setMessage("A receber informação.");
         progressDialog.show();
 
-        ParseQuery<Route> routeQuery = ParseQuery.getQuery("Routes");
-        routeQuery.whereEqualTo("calendarID", sharedPreferences.getString("calendarID", ""));
+        ParseQuery<Segment> segmentQuery = ParseQuery.getQuery("Segments");
+        segmentQuery.whereEqualTo("calendarID", sharedPreferences.getString("calendarID", ""));
 
-        routeQuery.findInBackground(new FindCallback<Route>() {
+        segmentQuery.findInBackground(new FindCallback<Segment>() {
             @Override
-            public void done(List<Route> objects, ParseException e) {
+            public void done(List<Segment> objects, ParseException e) {
 
-                routesName = new ArrayList<String>();
+                segmentsName = new ArrayList<>();
 
-                for (Route r : objects) {
-                    routesName.add(r.getName());
+                for (Segment r : objects) {
+                    segmentsName.add(r.getName());
                 }
 
-                ArrayAdapter<String> arrayadapter = new ArrayAdapter<String>(PassengersByTrips.this, android.R.layout.simple_dropdown_item_1line, routesName);
-                route.setAdapter(arrayadapter);
+                segment.setItems(segmentsName);
+                segment.setSelection(0);
             }
         });
 
@@ -93,7 +93,7 @@ public class PassengersByTrips extends AppCompatActivity implements View.OnClick
             @Override
             public void done(List<UsersByCalendars> objects, ParseException e) {
 
-                usernames = new ArrayList<String>();
+                usernames = new ArrayList<>();
 
                 for (UsersByCalendars uc : objects) {
 
@@ -110,7 +110,7 @@ public class PassengersByTrips extends AppCompatActivity implements View.OnClick
 
                 }
 
-                ArrayAdapter<String> arrayadapter = new ArrayAdapter<String>(PassengersByTrips.this, android.R.layout.simple_dropdown_item_1line, usernames);
+                ArrayAdapter<String> arrayadapter = new ArrayAdapter<>(PassengersByTrips.this, android.R.layout.simple_dropdown_item_1line, usernames);
                 passenger.setAdapter(arrayadapter);
 
                 progressDialog.dismiss();
@@ -121,7 +121,7 @@ public class PassengersByTrips extends AppCompatActivity implements View.OnClick
         Bundle b = getIntent().getExtras();
 
         ArrayList<String> passengersNames = b.getStringArrayList("passengersNames");
-        ArrayList<String> passengersRoutes = b.getStringArrayList("passengersRoutes");
+        ArrayList<String> passengersSegments = b.getStringArrayList("passengersSegments");
 
         pass = new ArrayList<HashMap<String, String>>();
 
@@ -129,7 +129,7 @@ public class PassengersByTrips extends AppCompatActivity implements View.OnClick
             HashMap<String, String> item = new HashMap<String, String>();
 
             item.put("line1", passengersNames.get(i));
-            item.put("line2", passengersRoutes.get(i));
+            item.put("line2", passengersSegments.get(i));
 
             pass.add(item);
         }
@@ -159,17 +159,17 @@ public class PassengersByTrips extends AppCompatActivity implements View.OnClick
             case R.id.savePassengers:
 
                 ArrayList<String> passengersNames = new ArrayList<>();
-                ArrayList<String> passengersRoutes = new ArrayList<>();
+                ArrayList<String> passengersSegments = new ArrayList<>();
 
                 for(HashMap<String, String> passenger: pass){
 
                     passengersNames.add(passenger.get("line1"));
-                    passengersRoutes.add(passenger.get("line2"));
+                    passengersSegments.add(passenger.get("line2"));
                 }
 
                 Intent intent = new Intent();
                 intent.putStringArrayListExtra("passengersNames", passengersNames);
-                intent.putStringArrayListExtra("passengersRoutes", passengersRoutes);
+                intent.putStringArrayListExtra("passengersSegments", passengersSegments);
                 setResult(1, intent);
                 finish();
 
@@ -181,8 +181,9 @@ public class PassengersByTrips extends AppCompatActivity implements View.OnClick
 
             case R.id.addPassenger:
 
-                String routeN = routesName.get(route.getSelectedItemPosition());
+                String segmentN = segment.getSelectedItemsAsString();
                 String passengerN = usernames.get(passenger.getSelectedItemPosition());
+
 
                 boolean alreadyExists = false;
 
@@ -192,11 +193,14 @@ public class PassengersByTrips extends AppCompatActivity implements View.OnClick
                         alreadyExists = true;
                 }
 
+                if (segmentN.equalsIgnoreCase("")) {
+                    Snackbar snackbar = Snackbar.make(parentLayout, "You haven't selected a segment", Snackbar.LENGTH_LONG);
 
-                if(!alreadyExists){
-                    HashMap<String, String> item = new HashMap<String, String>();
+                    snackbar.show();
+                } else if (!alreadyExists) {
+                    HashMap<String, String> item = new HashMap<>();
                     item.put("line1", passengerN);
-                    item.put("line2", routeN);
+                    item.put("line2", segmentN);
 
                     pass.add(item);
 
@@ -221,22 +225,22 @@ public class PassengersByTrips extends AppCompatActivity implements View.OnClick
         LinearLayout line_layout = (LinearLayout) v.getParent();
         final TextView text_test = (TextView) line_layout.findViewById(R.id.line_b);
 
-        final String route_selected = text_test.getText().toString();
-        int pos = routesName.indexOf(route_selected);
+        final String segment_selected = text_test.getText().toString();
+        int pos = segmentsName.indexOf(segment_selected);
 
-        String[] routes_array = new String[routesName.size()];
+        String[] segments_array = new String[segmentsName.size()];
 
-        for (int i = 0; i < routesName.size(); i++) {
+        for (int i = 0; i < segmentsName.size(); i++) {
 
-            routes_array[i] = routesName.get(i);
+            segments_array[i] = segmentsName.get(i);
         }
 
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         // Set the dialog title
-        builder.setTitle("Select the route")
-                .setSingleChoiceItems(routes_array, pos, null)
+        builder.setTitle("Select the segment")
+                .setSingleChoiceItems(segments_array, pos, null)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
@@ -244,7 +248,7 @@ public class PassengersByTrips extends AppCompatActivity implements View.OnClick
                         dialog.dismiss();
                         int selectedPosition = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
 
-                        text_test.setText(routesName.get(selectedPosition));
+                        text_test.setText(segmentsName.get(selectedPosition));
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -281,6 +285,22 @@ public class PassengersByTrips extends AppCompatActivity implements View.OnClick
                 new int[]{R.id.line_a, R.id.line_b});
 
         passengerList.setAdapter(simpleAdapter);
+
+    }
+
+    public void spinnerClick(View v) {
+
+        String spinner = v.getTag().toString();
+
+        switch (spinner) {
+            case "passengerSpinner":
+                passenger.performClick();
+                break;
+
+            case "segmentSpinner":
+                segment.performClick();
+                break;
+        }
 
     }
 }

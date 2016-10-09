@@ -29,12 +29,12 @@ public class PassengersInTrip extends ParseObject{
         put("PassengerID", id);
     }
 
-    public String getRouteID(){
-        return this.getString("RouteID");
+    public String getSegmentID() {
+        return this.getString("SegmentID");
     }
 
-    public void setRouteID(String id){
-        put("RouteID", id);
+    public void setSegmentID(String id) {
+        put("SegmentID", id);
     }
 
     public String getCalendarId(){
