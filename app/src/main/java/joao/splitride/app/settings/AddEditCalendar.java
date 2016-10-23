@@ -12,7 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -22,13 +22,11 @@ import joao.splitride.R;
 import joao.splitride.app.entities.Calendars;
 import joao.splitride.app.entities.UsersByCalendars;
 
-/**
- * Created by Joao on 26-01-2016.
- */
+
 public class AddEditCalendar extends AppCompatActivity implements View.OnClickListener {
 
     private Button ok, cancel;
-    private LinearLayout parentLayout;
+    private RelativeLayout parentLayout;
     private EditText name;
     private CheckBox checkBox;
     private Intent editCalendar;
@@ -42,7 +40,7 @@ public class AddEditCalendar extends AppCompatActivity implements View.OnClickLi
         toolbar.setTitle("Calendars");
         setSupportActionBar(toolbar);
 
-        parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
+        parentLayout = (RelativeLayout) findViewById(R.id.parentLayout);
         name = (EditText) findViewById(R.id.calendar_name);
         checkBox = (CheckBox) findViewById(R.id.checkBox);
 
@@ -58,7 +56,7 @@ public class AddEditCalendar extends AppCompatActivity implements View.OnClickLi
             name.setText(""+editCalendar.getStringExtra("name"));
             calendarID = editCalendar.getStringExtra("id");
 
-            if (editCalendar.getBooleanExtra("default", false) == true)
+            if (editCalendar.getBooleanExtra("default", false))
                 checkBox.toggle();
 
 
@@ -152,7 +150,7 @@ public class AddEditCalendar extends AppCompatActivity implements View.OnClickLi
 
                                             SharedPreferences.Editor editor = sharedPreferences.edit();
                                             editor.putString("calendarID", usersByCalendars.getCalendarID());
-                                            editor.commit();
+                                            editor.apply();
                                         }
 
                                     }
@@ -250,7 +248,7 @@ public class AddEditCalendar extends AppCompatActivity implements View.OnClickLi
 
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("calendarID", calendarID);
-                    editor.commit();
+                    editor.apply();
                 } else {
 
                     ParseQuery<UsersByCalendars> query_uc_actual = ParseQuery.getQuery("UsersByCalendar");

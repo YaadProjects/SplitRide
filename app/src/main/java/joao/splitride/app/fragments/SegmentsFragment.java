@@ -17,6 +17,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import joao.splitride.R;
@@ -27,6 +28,7 @@ import joao.splitride.app.entities.Segment;
 public class SegmentsFragment extends ListFragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private ListView segments_list;
+    private List<Segment> all_segments;
     private SegmentListAdapter mAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private SharedPreferences sharedPreferences;
@@ -63,8 +65,10 @@ public class SegmentsFragment extends ListFragment implements SwipeRefreshLayout
             @Override
             public void done(List<Segment> segmentsList, ParseException error) {
                 if (error == null) {
-                    mAdapter = new SegmentListAdapter<Segment>(getContext(), R.layout.listview_item, R.id.line_name, segmentsList);
+                    mAdapter = new SegmentListAdapter<>(getContext(), R.layout.listview_item, R.id.line_name, segmentsList);
                     segments_list.setAdapter(mAdapter);
+
+                    all_segments = segmentsList;
 
                     progressDialog.dismiss();
 
@@ -97,6 +101,17 @@ public class SegmentsFragment extends ListFragment implements SwipeRefreshLayout
         });
     }
 
+
+    public ArrayList getSegments_list() {
+        ArrayList<String> current_segments = new ArrayList<>();
+
+        for (Segment s : all_segments) {
+
+            current_segments.add(s.getName());
+        }
+
+        return current_segments;
+    }
 
 
     @Override

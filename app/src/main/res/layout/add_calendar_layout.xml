@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/parentLayout"
     android:layout_width="match_parent"
@@ -7,6 +7,7 @@
     android:weightSum="1">
 
     <android.support.design.widget.AppBarLayout
+        android:id="@+id/toolbar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
@@ -21,12 +22,14 @@
     </android.support.design.widget.AppBarLayout>
 
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
+    <LinearLayout
+        android:id="@+id/layout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar_layout"
         android:layout_marginTop="20dp"
-                    android:paddingLeft="15dp"
-        android:paddingRight="15dp">
+        android:orientation="horizontal"
+        android:paddingLeft="20dp">
 
         <TextView android:id="@+id/textView1"
             android:layout_width="wrap_content"
@@ -35,42 +38,60 @@
             android:foregroundGravity="center_vertical"
             android:gravity="center_vertical"
             android:text="@string/name"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black"
+            android:textStyle="bold" />
 
         <EditText android:id="@+id/calendar_name"
             android:layout_width="264dp"
             android:layout_height="fill_parent"
             android:layout_alignParentRight="true"
+            android:layout_marginLeft="10dp"
             android:ems="10"
             android:hint="@string/segment_name_example" />
 
-    </RelativeLayout>
+    </LinearLayout>
 
     <CheckBox
         android:id="@+id/checkBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/layout1"
+        android:layout_marginLeft="20dp"
         android:layout_marginTop="20dp"
         android:text="Default calendar"
-        android:textAlignment="center" />
+        android:textAlignment="center"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
-
-    <Button android:id="@+id/ok"
+    <LinearLayout
+        android:id="@+id/buttonlayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="70dp"
-        android:text="@string/ok" />
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="12dp"
+        android:orientation="horizontal">
 
-    <Button android:id="@+id/cancel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-            android:text="@string/cancel" />
+        <Button
+            android:id="@+id/ok"
+            android:layout_width="135dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="@string/ok"
+            android:textColor="@android:color/white"
+            android:theme="@style/ConfirmButton" />
 
-</LinearLayout>
+        <Button
+            android:id="@+id/cancel"
+            android:layout_width="135dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="@string/cancel"
+            android:textColor="@android:color/white"
+            android:theme="@style/DismissButton" />
+    </LinearLayout>
+
+</RelativeLayout>

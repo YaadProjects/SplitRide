@@ -1,5 +1,6 @@
 package joao.splitride.app.settings;
 
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -30,7 +31,7 @@ public class SearchUsers extends AppCompatActivity implements View.OnClickListen
     private ListView users_list;
     private Button ok, cancel;
     private SearchUserListAdapter myAdapter;
-    private ArrayList<String> currentCalendarUsers = new ArrayList<String>();
+    private ArrayList<String> currentCalendarUsers = new ArrayList<>();
     private SharedPreferences sharedPreferences;
 
     @Override
@@ -49,6 +50,11 @@ public class SearchUsers extends AppCompatActivity implements View.OnClickListen
 
         sharedPreferences = this.getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
 
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Por favor espere");
+        progressDialog.setMessage("A receber utilizadores.");
+        progressDialog.show();
+
         ParseQuery<UsersByCalendars> usersByCalendarsQuery = ParseQuery.getQuery("UsersByCalendar");
         usersByCalendarsQuery.whereEqualTo("CalendarID", sharedPreferences.getString("calendarID", ""));
 
@@ -65,7 +71,7 @@ public class SearchUsers extends AppCompatActivity implements View.OnClickListen
                 query_users.findInBackground(new FindCallback<ParseUser>() {
                     @Override
                     public void done(List<ParseUser> objects, ParseException e) {
-                        ArrayList<ParseUser> searchableUsers = new ArrayList<ParseUser>();
+                        ArrayList<ParseUser> searchableUsers = new ArrayList<>();
 
                         for (ParseUser user : objects) {
 
@@ -76,8 +82,10 @@ public class SearchUsers extends AppCompatActivity implements View.OnClickListen
 
                         myAdapter = new SearchUserListAdapter(SearchUsers.this, R.layout.custom_line_list_view_checkbox, searchableUsers);
 
-                        // assign the list adapter
                         users_list.setAdapter(myAdapter);
+                        progressDialog.dismiss();
+
+
                     }
                 });
 
@@ -86,6 +94,7 @@ public class SearchUsers extends AppCompatActivity implements View.OnClickListen
 
         Intent intent = getIntent();
         handleIntent(intent);
+
 
         ok.setOnClickListener(this);
         cancel.setOnClickListener(this);

@@ -45,7 +45,7 @@
     <string name="cancel">Cancel</string>
     <string name="name">Name</string>
     <string name="initials">Initials</string>
-    <string name="segment_name_example">Ex. London-Mitcham, Mitcham-Sutton</string>
+    <string name="segment_name_example">Ex. London-Mitcham</string>
     <string name="distance">Distance</string>
     <string name="distance_example" translatable="false">Ex. 10 km</string>
     <string name="cost">Cost</string>

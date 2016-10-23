@@ -128,6 +128,9 @@ public class TripListAdapter<T> extends ArraySwipeAdapter implements View.OnClic
                         ArrayList<String> passengers_names = new ArrayList<String>();
                         ArrayList<String> passengers_segments = new ArrayList<String>();
 
+                        String previous_passenger = "";
+                        ArrayList<String> previous_passenger_segments = new ArrayList<>();
+
                         for (PassengersInTrip p : objects) {
 
                             passengers_names.add(p.getPassengerID());

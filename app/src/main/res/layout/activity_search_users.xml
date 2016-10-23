@@ -29,34 +29,40 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/button_group"
         android:layout_below="@+id/parent_toolbar"
+        android:layout_marginTop="5dp"
         android:paddingLeft="5dp"
         android:paddingRight="5dp">
 
     </ListView>
 
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/button_group"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:gravity="bottom">
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/ok_button"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:text="OK" />
+            android:layout_width="135dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="OK"
+            android:textColor="@android:color/white"
+            android:theme="@style/ConfirmButton" />
 
         <Button
             android:id="@+id/cancel_button"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/ok_button"
-            android:layout_centerHorizontal="true"
-            android:text="Cancel" />
-    </RelativeLayout>
+            android:layout_width="135dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="Cancel"
+            android:textColor="@android:color/white"
+            android:theme="@style/DismissButton" />
+    </LinearLayout>
 
 
 </RelativeLayout>

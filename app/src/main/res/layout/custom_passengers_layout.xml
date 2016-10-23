@@ -13,24 +13,11 @@
         android:tag="Bottom2">
 
         <ImageButton
-            android:id="@+id/editElement"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:background="#4cd964"
-            android:contentDescription="@string/edit_button_description"
-            android:onClick="editElementOnClickHandler"
-            android:paddingLeft="25dp"
-            android:paddingRight="25dp"
-            android:src="@drawable/ic_edit" />
-
-
-        <ImageButton
             android:id="@+id/removeElement"
             android:layout_width="45dp"
             android:layout_height="45dp"
             android:background="@color/caldroid_light_red"
             android:contentDescription="@string/delete_button_description"
-            android:onClick="removeElementOnClickHandler"
             android:paddingLeft="25dp"
             android:paddingRight="25dp"
             android:src="@drawable/ic_delete" />

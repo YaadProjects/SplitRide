@@ -2,23 +2,18 @@ package joao.splitride.app.settings;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.SimpleAdapter;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -31,6 +26,7 @@ import java.util.List;
 
 import joao.splitride.R;
 import joao.splitride.app.custom.MultiSelectionSpinner;
+import joao.splitride.app.custom.PassengerListAdapter;
 import joao.splitride.app.entities.Segment;
 import joao.splitride.app.entities.UsersByCalendars;
 
@@ -44,7 +40,7 @@ public class PassengersByTrips extends AppCompatActivity implements View.OnClick
     private ArrayList<String> segmentsName, usernames;
     private ListView passengerList;
     private ArrayList<HashMap<String, String>> pass = new ArrayList<HashMap<String, String>>();
-    private SimpleAdapter simpleAdapter;
+    private PassengerListAdapter passengerListAdapter;
     private RelativeLayout parentLayout;
 
     @Override
@@ -86,6 +82,12 @@ public class PassengersByTrips extends AppCompatActivity implements View.OnClick
             }
         });
 
+        Bundle b = getIntent().getExtras();
+
+        ArrayList<String> passengersNames = b.getStringArrayList("passengersNames");
+        ArrayList<String> passengersSegments = b.getStringArrayList("passengersSegments");
+        final String driverName = b.getString("driverName");
+
         final ParseQuery<UsersByCalendars> usersQuery = ParseQuery.getQuery("UsersByCalendar");
         usersQuery.whereEqualTo("CalendarID", sharedPreferences.getString("calendarID", ""));
 
@@ -102,7 +104,8 @@ public class PassengersByTrips extends AppCompatActivity implements View.OnClick
 
                     try {
                         ParseUser user = queryUser.getFirst();
-                        usernames.add(user.getUsername());
+                        if (!user.getUsername().equalsIgnoreCase(driverName))
+                            usernames.add(user.getUsername());
 
                     } catch (ParseException e1) {
                         e1.printStackTrace();
@@ -118,12 +121,8 @@ public class PassengersByTrips extends AppCompatActivity implements View.OnClick
             }
         });
 
-        Bundle b = getIntent().getExtras();
 
-        ArrayList<String> passengersNames = b.getStringArrayList("passengersNames");
-        ArrayList<String> passengersSegments = b.getStringArrayList("passengersSegments");
-
-        pass = new ArrayList<HashMap<String, String>>();
+        pass = new ArrayList<>();
 
         for(int i=0; i<passengersNames.size(); i++){
             HashMap<String, String> item = new HashMap<String, String>();
@@ -134,11 +133,8 @@ public class PassengersByTrips extends AppCompatActivity implements View.OnClick
             pass.add(item);
         }
 
-        simpleAdapter = new SimpleAdapter(this, pass, R.layout.custom_passengers_layout,
-                new String[]{"line1", "line2"},
-                new int[]{R.id.line_a, R.id.line_b});
-
-        passengerList.setAdapter(simpleAdapter);
+        passengerListAdapter = new PassengerListAdapter(this, R.layout.custom_passengers_layout, pass);
+        passengerList.setAdapter(passengerListAdapter);
 
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -204,11 +200,8 @@ public class PassengersByTrips extends AppCompatActivity implements View.OnClick
 
                     pass.add(item);
 
-                    simpleAdapter = new SimpleAdapter(this, pass, R.layout.custom_passengers_layout,
-                            new String[]{"line1", "line2"},
-                            new int[]{R.id.line_a, R.id.line_b});
-
-                    passengerList.setAdapter(simpleAdapter);
+                    passengerListAdapter = new PassengerListAdapter(this, R.layout.custom_passengers_layout, pass);
+                    passengerList.setAdapter(passengerListAdapter);
                 }else{
                     Snackbar snackbar = Snackbar.make(parentLayout, passengerN + " is already in the list", Snackbar.LENGTH_LONG);
 
@@ -219,74 +212,6 @@ public class PassengersByTrips extends AppCompatActivity implements View.OnClick
         }
     }
 
-    public void editElementOnClickHandler(View v) {
-
-        // Determinar quem e o utilizador a ser editado
-        LinearLayout line_layout = (LinearLayout) v.getParent();
-        final TextView text_test = (TextView) line_layout.findViewById(R.id.line_b);
-
-        final String segment_selected = text_test.getText().toString();
-        int pos = segmentsName.indexOf(segment_selected);
-
-        String[] segments_array = new String[segmentsName.size()];
-
-        for (int i = 0; i < segmentsName.size(); i++) {
-
-            segments_array[i] = segmentsName.get(i);
-        }
-
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        // Set the dialog title
-        builder.setTitle("Select the segment")
-                .setSingleChoiceItems(segments_array, pos, null)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-
-                        dialog.dismiss();
-                        int selectedPosition = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
-
-                        text_test.setText(segmentsName.get(selectedPosition));
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
-                    }
-                });
-
-        builder.create();
-        builder.show();
-
-    }
-
-    public void removeElementOnClickHandler(View v) {
-
-        LinearLayout rl = (LinearLayout) v.getParent();
-        TextView tv = (TextView) rl.findViewById(R.id.line_a);
-        String name = tv.getText().toString();
-
-        HashMap<String, String> item = null;
-
-        for (HashMap<String, String> pair : pass) {
-
-            if (pair.containsValue(name))
-                item = pair;
-        }
-
-        if (item != null)
-            pass.remove(item);
-
-        simpleAdapter = new SimpleAdapter(this, pass, R.layout.custom_passengers_layout,
-                new String[]{"line1", "line2"},
-                new int[]{R.id.line_a, R.id.line_b});
-
-        passengerList.setAdapter(simpleAdapter);
-
-    }
 
     public void spinnerClick(View v) {
 

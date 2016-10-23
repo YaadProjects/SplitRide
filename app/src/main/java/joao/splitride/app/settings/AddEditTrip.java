@@ -30,6 +30,7 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -40,9 +41,7 @@ import joao.splitride.app.entities.Segment;
 import joao.splitride.app.entities.Trip;
 import joao.splitride.app.entities.Vehicle;
 
-/**
- * Created by joaoferreira on 28/05/16.
- */
+
 public class AddEditTrip extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener {
 
     private RelativeLayout parentLayout;
@@ -55,7 +54,7 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
     private CheckBox roundtrip;
     private HashMap<String, ArrayList<String>> drivers_and_vehicles = new HashMap<>();
     private ArrayList<String> passengerNames = new ArrayList<>(), passengerSegments = new ArrayList<>();
-    private ArrayList<String> usernames = new ArrayList<String>(), vehiclesNames = new ArrayList<String>();
+    private ArrayList<String> usernames = new ArrayList<>(), vehiclesNames = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +103,7 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
 
                         ArrayList<String> veh;
                         if (drivers_and_vehicles.get(user.getUsername()) == null)
-                            veh = new ArrayList<String>();
+                            veh = new ArrayList<>();
                         else veh = drivers_and_vehicles.get(user.getUsername());
 
                         veh.add(v.getVehicleName());
@@ -116,10 +115,10 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
 
                 }
 
-                ArrayAdapter<String> arrayadapter = new ArrayAdapter<String>(AddEditTrip.this, android.R.layout.simple_dropdown_item_1line, usernames);
+                ArrayAdapter<String> arrayadapter = new ArrayAdapter<>(AddEditTrip.this, android.R.layout.simple_dropdown_item_1line, usernames);
                 drivers.setAdapter(arrayadapter);
 
-                ArrayAdapter<String> arrayadapter2 = new ArrayAdapter<String>(AddEditTrip.this, android.R.layout.simple_dropdown_item_1line, vehiclesNames);
+                ArrayAdapter<String> arrayadapter2 = new ArrayAdapter<>(AddEditTrip.this, android.R.layout.simple_dropdown_item_1line, vehiclesNames);
                 vehicles.setAdapter(arrayadapter2);
 
                 progressDialog.dismiss();
@@ -143,7 +142,7 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
 
                         drivers.setSelection(usernames.indexOf(user.getUsername()));
 
-                        ArrayAdapter<String> arrayadapter3 = new ArrayAdapter<String>(AddEditTrip.this, android.R.layout.simple_dropdown_item_1line, drivers_and_vehicles.get(user.getUsername()));
+                        ArrayAdapter<String> arrayadapter3 = new ArrayAdapter<>(AddEditTrip.this, android.R.layout.simple_dropdown_item_1line, drivers_and_vehicles.get(user.getUsername()));
                         vehicles.setAdapter(arrayadapter3);
 
                         vehicles.setSelection(vehiclesNames.indexOf(vehicle.getVehicleName()));
@@ -156,8 +155,32 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
                         roundtrip.setSelected(true);
                     else roundtrip.setSelected(false);
 
-                    passengerNames = editTrip.getStringArrayListExtra("passengers_names");
-                    passengerSegments = editTrip.getStringArrayListExtra("passengers_segments");
+                    for (String userID : editTrip.getStringArrayListExtra("passengers_names")) {
+
+                        queryUser.whereEqualTo("objectId", userID);
+
+                        try {
+                            ParseUser user = queryUser.getFirst();
+                            passengerNames.add(user.getUsername());
+
+                        } catch (ParseException e4) {
+                            e4.printStackTrace();
+                        }
+                    }
+
+                    for (String segmentID : editTrip.getStringArrayListExtra("passengers_segments")) {
+
+                        ParseQuery<Segment> querySegment = ParseQuery.getQuery("Segments");
+                        querySegment.whereEqualTo("objectId", segmentID);
+
+                        try {
+                            Segment segment = querySegment.getFirst();
+
+                            passengerSegments.add(segment.getName());
+                        } catch (ParseException e2) {
+                            e2.printStackTrace();
+                        }
+                    }
                 }
 
             }
@@ -202,29 +225,35 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
                     if(e==null){
 
                         for(int i=0; i<passengers.size(); i++){
+
                             ParseQuery<ParseUser> queryUser = ParseUser.getQuery();
                             queryUser.whereEqualTo("username", passengers.get(i));
 
-                            ParseQuery<Segment> querySegment = ParseQuery.getQuery("Segments");
-                            querySegment.whereEqualTo("Name", segments.get(i));
-                            querySegment.whereEqualTo("calendarID", sharedPreferences.getString("calendarID", ""));
+
+                            List<String> segmentsForUser = Arrays.asList(segments.get(i).split(", "));
+
+                            for (String seg : segmentsForUser) {
+                                ParseQuery<Segment> querySegment = ParseQuery.getQuery("Segments");
+                                querySegment.whereEqualTo("Name", seg);
+                                querySegment.whereEqualTo("calendarID", sharedPreferences.getString("calendarID", ""));
 
 
-                            try {
-                                String passengerID = queryUser.getFirst().getObjectId();
-                                String segmentID = querySegment.getFirst().getObjectId();
+                                try {
+                                    String passengerID = queryUser.getFirst().getObjectId();
+                                    String segmentID = querySegment.getFirst().getObjectId();
 
-                                PassengersInTrip passengersInTrip = new PassengersInTrip();
+                                    PassengersInTrip passengersInTrip = new PassengersInTrip();
 
-                                passengersInTrip.setPassengerID(passengerID);
-                                passengersInTrip.setSegmentID(segmentID);
-                                passengersInTrip.setTripID(trip.getObjectId());
-                                passengersInTrip.setCalendarID(sharedPreferences.getString("calendarID", ""));
+                                    passengersInTrip.setPassengerID(passengerID);
+                                    passengersInTrip.setSegmentID(segmentID);
+                                    passengersInTrip.setTripID(trip.getObjectId());
+                                    passengersInTrip.setCalendarID(sharedPreferences.getString("calendarID", ""));
 
-                                passengersInTrip.saveInBackground();
+                                    passengersInTrip.saveInBackground();
 
-                            }catch (ParseException e1){
-                                e1.printStackTrace();
+                                } catch (ParseException e1) {
+                                    e1.printStackTrace();
+                                }
                             }
 
                         }
@@ -251,7 +280,7 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
                     //setResult(1);
                     finish();
                 }else{
-                    String message = "";
+                    String message;
 
                     if(date.getText().toString().equalsIgnoreCase("DD/MM/YYYY"))
                         message = "You must indicate a date";
@@ -273,6 +302,7 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
             case R.id.passengerListButton:
                 Intent intent = new Intent(AddEditTrip.this, PassengersByTrips.class);
 
+                intent.putExtra("driverName", usernames.get(drivers.getSelectedItemPosition()));
                 intent.putStringArrayListExtra("passengersNames", passengerNames);
                 intent.putStringArrayListExtra("passengersSegments", passengerSegments);
                 startActivityForResult(intent, 1);
@@ -290,7 +320,7 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-        ArrayAdapter<String> arrayadapter2 = new ArrayAdapter<String>(AddEditTrip.this, android.R.layout.simple_dropdown_item_1line, drivers_and_vehicles.get(parent.getItemAtPosition(position).toString()));
+        ArrayAdapter<String> arrayadapter2 = new ArrayAdapter<>(AddEditTrip.this, android.R.layout.simple_dropdown_item_1line, drivers_and_vehicles.get(parent.getItemAtPosition(position).toString()));
         vehicles.setAdapter(arrayadapter2);
 
     }
@@ -308,7 +338,7 @@ public class AddEditTrip extends AppCompatActivity implements View.OnClickListen
             passengerSegments = data.getStringArrayListExtra("passengersSegments");
 
             Log.w("application", passengerNames.toString());
-            Log.w("application", passengerSegments.toString());
+            Log.w("application", passengerSegments.toString() + " " + passengerSegments.size());
         }
     }
 

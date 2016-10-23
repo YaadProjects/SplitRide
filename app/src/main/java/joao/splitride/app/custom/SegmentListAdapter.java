@@ -17,6 +17,7 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import joao.splitride.R;
@@ -55,6 +56,11 @@ public class SegmentListAdapter<T> extends ArraySwipeAdapter implements View.OnC
         this.layoutResourceId = resource;
         this.context = context;
         this.items = objects;
+    }
+
+    public List<Segment> getItems() {
+
+        return this.items;
     }
 
     @Override
@@ -107,6 +113,14 @@ public class SegmentListAdapter<T> extends ArraySwipeAdapter implements View.OnC
                 intent.putExtra("distance", segment.getDistance());
                 intent.putExtra("cost", segment.getCost());
 
+                ArrayList<String> segments_names = new ArrayList<>();
+
+                for (Segment seg : items) {
+                    segments_names.add(seg.getName());
+                }
+
+                intent.putExtra("current_segments", segments_names);
+
                 ((Activity) context).startActivityForResult(intent, 1);
                 break;
 
@@ -120,15 +134,13 @@ public class SegmentListAdapter<T> extends ArraySwipeAdapter implements View.OnC
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // TODO Auto-generated method stub
-                        ParseQuery<Segment> query = ParseQuery.getQuery("Routes");
+                        ParseQuery<Segment> query = ParseQuery.getQuery("Segments");
                         query.whereEqualTo("objectId", segment2.getObjectId());
 
                         query.findInBackground(new FindCallback<Segment>() {
                             @Override
                             public void done(List<Segment> objects, ParseException e) {
                                 if (e == null) {
-                                    // object will be your game score
                                     Segment object = objects.get(0);
                                     object.deleteInBackground();
 

@@ -28,11 +28,14 @@ import com.parse.ParseUser;
 import com.roomorama.caldroid.CaldroidFragment;
 import com.roomorama.caldroid.CaldroidListener;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import joao.splitride.R;
+import joao.splitride.app.entities.PassengersInTrip;
 import joao.splitride.app.entities.Trip;
 import joao.splitride.app.entities.UsersByCalendars;
 import joao.splitride.app.entities.Vehicle;
@@ -85,6 +88,9 @@ public class MainActivity extends AppCompatActivity
 
                 if (segments_frag != null && segments_frag.isVisible()) {
                     Intent intent = new Intent(MainActivity.this, AddEditSegment.class);
+
+                    intent.putExtra("current_segments", segments_frag.getSegments_list());
+
                     startActivityForResult(intent, 1);
                 }else if(calendars_frag != null && calendars_frag.isVisible()){
                     Intent intent = new Intent(MainActivity.this, AddEditCalendar.class);
@@ -144,18 +150,50 @@ public class MainActivity extends AppCompatActivity
                         if (e == null) {
 
                             double month_total = 0.0;
+                            double consumption = 0.0;
 
                             for (Trip trip : objects) {
                                 ParseQuery<Vehicle> query_vehicle = ParseQuery.getQuery("Vehicles");
                                 query_vehicle.whereEqualTo("objectId", trip.getVehicleID());
 
                                 try {
-                                    double consumption = query_vehicle.getFirst().getVehicleConsumption();
-
-
+                                    consumption = query_vehicle.getFirst().getVehicleConsumption();
                                 } catch (ParseException e1) {
                                     e1.printStackTrace();
                                 }
+
+                                ParseQuery<PassengersInTrip> query_passengers = ParseQuery.getQuery("PassengersInTrip");
+                                query_passengers.whereEqualTo("TripID", trip.getObjectId());
+
+                                query_passengers.findInBackground(new FindCallback<PassengersInTrip>() {
+                                    @Override
+                                    public void done(List<PassengersInTrip> passengersInTrips, ParseException e) {
+
+                                        if (e == null) {
+                                            HashMap<String, ArrayList<String>> passengers_by_Segments = new HashMap<>();
+
+                                            for (PassengersInTrip pt : passengersInTrips) {
+
+                                                if (passengers_by_Segments.containsKey(pt.getSegmentID())) {
+                                                    ArrayList<String> passengers = passengers_by_Segments.get(pt.getSegmentID());
+
+                                                    passengers.add(pt.getPassengerID());
+                                                    passengers_by_Segments.put(pt.getSegmentID(), passengers);
+                                                } else {
+                                                    ArrayList<String> passengers = new ArrayList<>();
+                                                    passengers.add(pt.getPassengerID());
+
+                                                    passengers_by_Segments.put(pt.getSegmentID(), passengers);
+                                                }
+                                            }
+
+                                            Log.w("passengers", passengers_by_Segments.toString());
+                                        }
+                                    }
+                                });
+
+                                Log.w("applications", consumption + "");
+
                             }
 
 
