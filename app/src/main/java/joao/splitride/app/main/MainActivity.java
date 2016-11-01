@@ -36,9 +36,11 @@ import java.util.List;
 
 import joao.splitride.R;
 import joao.splitride.app.entities.PassengersInTrip;
+import joao.splitride.app.entities.Segment;
 import joao.splitride.app.entities.Trip;
 import joao.splitride.app.entities.UsersByCalendars;
 import joao.splitride.app.entities.Vehicle;
+import joao.splitride.app.fragments.AccountsFragment;
 import joao.splitride.app.fragments.MovementsFragment;
 import joao.splitride.app.fragments.MyCalendarsFragment;
 import joao.splitride.app.fragments.SegmentsFragment;
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity
     private MyCalendarsFragment calendarsFragment;
     private VehiclesFragment vehiclesFragment;
     private MovementsFragment movementsFragment;
+    private AccountsFragment accountsFragment;
     private TripsFragment tripsFragment;
     private SharedPreferences sharedPreferences;
     private CaldroidListener calendarListener;
@@ -85,6 +88,7 @@ public class MainActivity extends AppCompatActivity
                 UsersFragment users_frag = (UsersFragment) getSupportFragmentManager().findFragmentByTag("PERSONS");
                 VehiclesFragment vehicles_frag = (VehiclesFragment) getSupportFragmentManager().findFragmentByTag("VEHICLES");
                 MovementsFragment movements_frag = (MovementsFragment) getSupportFragmentManager().findFragmentByTag("MOVEMENTS");
+                //AccountsFragment accounts_frag = (AccountsFragment) getSupportFragmentManager().findFragmentByTag("ACCOUNTS");
 
                 if (segments_frag != null && segments_frag.isVisible()) {
                     Intent intent = new Intent(MainActivity.this, AddEditSegment.class);
@@ -149,21 +153,13 @@ public class MainActivity extends AppCompatActivity
 
                         if (e == null) {
 
-                            double month_total = 0.0;
-                            double consumption = 0.0;
+                            final HashMap<String, HashMap<String, Double>> accounts = new HashMap<>();
 
-                            for (Trip trip : objects) {
-                                ParseQuery<Vehicle> query_vehicle = ParseQuery.getQuery("Vehicles");
-                                query_vehicle.whereEqualTo("objectId", trip.getVehicleID());
+                            for (final Trip trip : objects) {
 
-                                try {
-                                    consumption = query_vehicle.getFirst().getVehicleConsumption();
-                                } catch (ParseException e1) {
-                                    e1.printStackTrace();
-                                }
-
-                                ParseQuery<PassengersInTrip> query_passengers = ParseQuery.getQuery("PassengersInTrip");
+                                final ParseQuery<PassengersInTrip> query_passengers = ParseQuery.getQuery("PassengersInTrip");
                                 query_passengers.whereEqualTo("TripID", trip.getObjectId());
+
 
                                 query_passengers.findInBackground(new FindCallback<PassengersInTrip>() {
                                     @Override
@@ -186,25 +182,69 @@ public class MainActivity extends AppCompatActivity
                                                     passengers_by_Segments.put(pt.getSegmentID(), passengers);
                                                 }
                                             }
+                                            ParseQuery<Vehicle> query_vehicle = ParseQuery.getQuery("Vehicles");
+                                            query_vehicle.whereEqualTo("objectId", trip.getVehicleID());
 
-                                            Log.w("passengers", passengers_by_Segments.toString());
+                                            double consumos = 0.0;
+
+                                            try {
+                                                consumos = query_vehicle.getFirst().getVehicleConsumption();
+                                            } catch (ParseException e1) {
+                                                e1.printStackTrace();
+                                            }
+
+                                            Log.w("segment:passengers", passengers_by_Segments.toString());
+
+                                            for (String segmentID : passengers_by_Segments.keySet()) {
+                                                ParseQuery<Segment> query_segment = ParseQuery.getQuery("Segments");
+                                                query_segment.whereEqualTo("calendarID", sharedPreferences.getString("calendarID", ""));
+                                                query_segment.whereEqualTo("objectId", segmentID);
+
+                                                try {
+                                                    double distance = query_segment.getFirst().getDistance();
+                                                    double tolls = query_segment.getFirst().getCost();
+
+                                                    //(km/100)*comsumption+tolls
+                                                    double segmentCost = ((distance / 100) * consumos) + tolls;
+                                                    double segmentCostByUser = segmentCost / passengers_by_Segments.get(segmentID).size();
+
+                                                    for (String userID : passengers_by_Segments.get(segmentID)) {
+                                                        if (accounts.get(trip.getDriverID()) != null) {
+
+                                                            if (accounts.get(trip.getDriverID()).get(userID) != null) {
+
+                                                                accounts.get(trip.getDriverID()).put(userID, accounts.get(trip.getDriverID()).get(userID) + segmentCostByUser);
+                                                            } else {
+                                                                accounts.get(trip.getDriverID()).put(userID, segmentCostByUser);
+                                                            }
+                                                        } else {
+                                                            HashMap<String, Double> passenger_account = new HashMap<>();
+                                                            passenger_account.put(userID, segmentCostByUser);
+
+                                                            accounts.put(trip.getDriverID(), passenger_account);
+                                                        }
+
+                                                    }
+
+                                                } catch (ParseException e1) {
+                                                    e1.printStackTrace();
+                                                }
+                                            }
+
+                                            Log.w("accounts", accounts.toString());
+
+
                                         }
                                     }
                                 });
 
-                                Log.w("applications", consumption + "");
 
                             }
-
-
-                            Log.d("applications", objects.toString());
-
                         }
                     }
                 });
 
 
-                //(km/100)*comsumption+tolls
             }
         });
 
@@ -426,8 +466,32 @@ public class MainActivity extends AppCompatActivity
                 alertDialog.show();
 
             }
+        } else if (id == R.id.nav_accounts) {
 
+            if (hasCalendars()) {
+                accountsFragment = new AccountsFragment();
+
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+                transaction.replace(R.id.calendar1, accountsFragment, "ACCOUNTS");
+                transaction.addToBackStack(null);
+
+                // Commit the transaction
+                transaction.commit();
+            } else {
+                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+
+                alertDialog.setTitle("Error");
+                alertDialog.setMessage("You have no calendars set. Please go to the My Calendars and create one.");
+                alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+                alertDialog.show();
+
+            }
         }
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

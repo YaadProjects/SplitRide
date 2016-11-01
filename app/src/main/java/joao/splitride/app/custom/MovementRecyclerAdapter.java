@@ -20,13 +20,13 @@ import java.util.List;
 import joao.splitride.R;
 import joao.splitride.app.entities.Movement;
 
-public class MyRecyclerViewAdapter extends RecyclerView
-        .Adapter<MyRecyclerViewAdapter
+public class MovementRecyclerAdapter extends RecyclerView
+        .Adapter<MovementRecyclerAdapter
         .DataObjectHolder> {
     private List<Movement> mDataset;
     private Context context;
 
-    public MyRecyclerViewAdapter(List<Movement> myDataset, Context myContext) {
+    public MovementRecyclerAdapter(List<Movement> myDataset, Context myContext) {
         mDataset = myDataset;
         context = myContext;
     }

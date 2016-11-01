@@ -5,6 +5,7 @@ import android.app.Application;
 import com.parse.Parse;
 import com.parse.ParseObject;
 
+import joao.splitride.app.entities.Account;
 import joao.splitride.app.entities.Calendars;
 import joao.splitride.app.entities.Movement;
 import joao.splitride.app.entities.PassengersInTrip;
@@ -29,6 +30,7 @@ public class SampleApplication extends Application {
         ParseObject.registerSubclass(Movement.class);
         ParseObject.registerSubclass(PassengersInTrip.class);
         ParseObject.registerSubclass(Trip.class);
+        ParseObject.registerSubclass(Account.class);
 
         Parse.initialize(new Parse.Configuration.Builder(getApplicationContext())
                 .applicationId("pg54vFFRG4h8UeR48iQrgER3E0Gz8PTLyOaOMqMJ")
