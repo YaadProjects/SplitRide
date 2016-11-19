@@ -26,6 +26,7 @@ import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
+import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
@@ -49,9 +50,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         add("public_profile");
         add("email");
     }};
+
+
     private static final String EMAIL_PATTERN = "^[a-zA-Z0-9#_~!$&'()*+,;=:.\"(),:;<>@\\[\\]\\\\]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*$";
-    //private LoginButton fb_button;
-    private Button fb_button;
+    private Button fb_button, twitter_button;
     private ParseUser parseUser;
     private String name, email;
     private Profile profile;
@@ -65,11 +67,16 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getApplicationContext());
+        ParseTwitterUtils.initialize(getResources().getString(R.string.twitter_consumer_key), getResources().getString(R.string.twitter_consumer_secret));
         setContentView(R.layout.activity_login);
 
         // Facebook Stuff
         fb_button = (Button) findViewById(R.id.btn_fb_login);
         fb_button.setOnClickListener(this);
+
+        // Twitter stuff
+        twitter_button = (Button) findViewById(R.id.btn_twitter_login);
+        twitter_button.setOnClickListener(this);
 
         profile = Profile.getCurrentProfile();
 
@@ -150,6 +157,30 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     }
                 });
                 break;
+
+            case R.id.btn_twitter_login:
+                //maneca59@hotmail.com
+                ParseTwitterUtils.logIn(this, new LogInCallback() {
+                    @Override
+                    public void done(ParseUser user, ParseException err) {
+                        if (user == null) {
+                            Log.d("MyApp", "Uh oh. The user cancelled the Twitter login.");
+                        } else if (user.isNew()) {
+                            String screen_name = ParseTwitterUtils.getTwitter().getScreenName();
+                            //editor.putString("screen_name", screen_name);
+                            //editor.commit();
+                            Log.d("MyApp", screen_name + " has signed in");
+                            // Refresh
+                            Intent myIntent = new Intent(getBaseContext(), MainActivity.class);
+                            startActivity(myIntent);
+
+                        } else {
+                            Log.d("MyApp", "User logged in through Twitter!" + user.toString());
+                        }
+                    }
+                });
+
+                break;
         }
     }
 
@@ -209,10 +240,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void getUserDetailsFromFB() {
 
-        // Suggested by https://disqus.com/by/dominiquecanlas/
         Bundle parameters = new Bundle();
         parameters.putString("fields", "email,name,picture");
-
 
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
@@ -419,6 +448,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public boolean validatePassword(String password) {
         return password.length() > 5;
     }
+
+
+    // LOGIN WITH TWITTER
+
 
 
 }

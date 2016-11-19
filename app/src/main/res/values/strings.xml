@@ -82,4 +82,7 @@
     <string name="title_activity_search_users">SearchUsers</string>
 
     <string name="facebook_app_id">329652360740718</string>
+
+    <string name="twitter_consumer_key">NE1czCzz1hBp7dIHIC8EB1jXk</string>
+    <string name="twitter_consumer_secret">JlIjKj5B73NALoTRaYHGpYScwKGLCCOal5PXp495ufNH8am4Rf</string>
 </resources>

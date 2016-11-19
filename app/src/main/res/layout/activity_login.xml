@@ -116,15 +116,34 @@
         android:theme="@style/DismissButton"
         android:visibility="gone" />
 
-
-    <Button
-        android:id="@+id/btn_fb_login"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:background="@color/com_facebook_blue"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:text="Login via Facebook"
-        android:textColor="@android:color/white" />
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_fb_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="@color/com_facebook_blue"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:text="Login via Facebook"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/btn_twitter_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="24dp"
+            android:background="@color/caldroid_holo_blue_light"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:text="Login via Twitter"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+
 </LinearLayout>
