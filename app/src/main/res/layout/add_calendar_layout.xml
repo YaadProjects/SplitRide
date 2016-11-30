@@ -45,7 +45,6 @@
         <EditText android:id="@+id/calendar_name"
             android:layout_width="264dp"
             android:layout_height="fill_parent"
-            android:layout_alignParentRight="true"
             android:layout_marginLeft="10dp"
             android:ems="10"
             android:hint="@string/segment_name_example" />
@@ -59,7 +58,7 @@
         android:layout_below="@+id/layout1"
         android:layout_marginLeft="20dp"
         android:layout_marginTop="20dp"
-        android:text="Default calendar"
+        android:text="@string/default_calendar"
         android:textAlignment="center"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 

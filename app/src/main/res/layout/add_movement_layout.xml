@@ -31,7 +31,7 @@
         android:layout_marginTop="20dp"
         android:gravity="center"
         android:padding="4dp"
-        android:text="Payer"
+        android:text="@string/payer"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <Spinner
@@ -42,8 +42,7 @@
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:layout_marginTop="5dp"
-        android:layout_weight="1" />
+        android:layout_marginTop="5dp"/>
 
     <TextView
         android:id="@+id/receiver"
@@ -54,7 +53,7 @@
         android:layout_marginRight="20dp"
         android:layout_marginTop="5dp"
         android:gravity="center"
-        android:text="Receiver"
+        android:text="@string/receiver"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <Spinner
@@ -64,8 +63,7 @@
         android:layout_below="@+id/receiver"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:layout_marginTop="5dp"
-        android:layout_weight="1" />
+        android:layout_marginTop="5dp"/>
 
     <TextView
         android:id="@+id/value_textview"
@@ -76,11 +74,12 @@
         android:layout_marginRight="20dp"
         android:layout_marginTop="5dp"
         android:gravity="center"
-        android:text="Value"
+        android:text="@string/value"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <EditText
         android:id="@+id/value_movement"
+        android:inputType="numberDecimal"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/value_textview"
@@ -100,7 +99,7 @@
         android:layout_alignStart="@+id/value_textview"
         android:layout_below="@+id/value_movement"
         android:layout_marginTop="53dp"
-        android:text="OK" />
+        android:text="@string/ok" />
 
     <Button
         android:id="@+id/cancel_button"
@@ -111,7 +110,7 @@
         android:layout_alignRight="@+id/ok_button"
         android:layout_alignStart="@+id/ok_button"
         android:layout_below="@+id/ok_button"
-        android:text="Cancel" />
+        android:text="@string/cancel" />
 
 
 </RelativeLayout>

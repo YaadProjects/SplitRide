@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="60dp"
-        android:text="Split The Ride"
+        android:text="@string/app_name"
         android:textColor="#000000"
         android:textSize="30sp" />
 
@@ -38,7 +38,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="94dp"
             android:ems="10"
-            android:hint="Username"
+            android:hint="@string/prompt_username"
             android:inputType="textEmailAddress" />
     </android.support.design.widget.TextInputLayout>
 
@@ -58,7 +58,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="94dp"
             android:ems="10"
-            android:hint="Email"
+            android:hint="@string/prompt_email"
             android:inputType="textEmailAddress" />
     </android.support.design.widget.TextInputLayout>
 
@@ -76,7 +76,7 @@
             android:layout_alignStart="@+id/editText"
             android:layout_below="@+id/editText"
             android:ems="10"
-            android:hint="password"
+            android:hint="@string/prompt_password"
             android:inputType="textPassword" />
     </android.support.design.widget.TextInputLayout>
 
@@ -85,11 +85,9 @@
         android:id="@+id/button_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="30dp"
-        android:text="Login"
+        android:text="@string/login"
         android:textColor="@android:color/white"
         android:theme="@style/ConfirmButton" />
 
@@ -97,10 +95,8 @@
         android:id="@+id/register_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/button_login"
-        android:layout_alignStart="@+id/button_login"
         android:layout_gravity="center_horizontal"
-        android:text="Registar"
+        android:text="@string/register"
         android:textColor="@android:color/white"
         android:theme="@style/ConfirmButton" />
 
@@ -108,10 +104,8 @@
         android:id="@+id/register_cancel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/button_login"
-        android:layout_alignStart="@+id/button_login"
         android:layout_gravity="center_horizontal"
-        android:text="Cancel"
+        android:text="@string/cancel"
         android:textColor="@android:color/white"
         android:theme="@style/DismissButton"
         android:visibility="gone" />
@@ -119,9 +113,11 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="5dp">
 
-        <Button
+        <!-- <Button
             android:id="@+id/btn_fb_login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -130,9 +126,25 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:text="Login via Facebook"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/white" /> -->
 
-        <Button
+        <ImageButton
+            android:layout_width="51dp"
+            android:layout_height="51dp"
+            android:background="@drawable/facebook"
+            android:onClick="onFacebookLogin"
+            android:layout_marginRight="20dp"
+            />
+
+        <ImageButton
+            android:layout_width="51dp"
+            android:layout_height="51dp"
+            android:background="@drawable/twitter"
+            android:onClick="onTwitterLogin"
+            android:layout_marginLeft="20dp"
+            />
+
+        <!-- <Button
             android:id="@+id/btn_twitter_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -142,7 +154,7 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:text="Login via Twitter"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/white" /> -->
 
     </LinearLayout>
 

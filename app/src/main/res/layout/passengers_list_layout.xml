@@ -44,7 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:text="Save"
+            android:text="@string/save"
             android:textColor="@android:color/white"
             android:theme="@style/ConfirmButton" />
 
@@ -53,7 +53,7 @@
             android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:text="Cancel"
+            android:text="@string/cancel"
             android:textColor="@android:color/white"
             android:theme="@style/DismissButton" />
 
@@ -80,7 +80,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
-                android:text="Passenger"
+                android:text="@string/passenger"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@android:color/black"
                 android:textStyle="bold" />
@@ -105,10 +105,8 @@
                     android:spinnerMode="dropdown" />
 
                 <ImageView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
                     android:layout_gravity="center"
                     android:layout_weight="0.41"
                     android:onClick="spinnerClick"
@@ -130,7 +128,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="Segment"
+                android:text="@string/segment"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@android:color/black"
                 android:textStyle="bold" />
@@ -159,8 +157,6 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
                     android:layout_gravity="center"
                     android:layout_weight="0.41"
                     android:onClick="spinnerClick"
@@ -179,7 +175,7 @@
         android:layout_below="@+id/tableLayout"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
-        android:text="Add"
+        android:text="@string/add"
         android:textColor="@android:color/white"
         android:theme="@style/ConfirmButton" />
 

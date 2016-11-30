@@ -25,8 +25,7 @@
         android:layout_below="@+id/calendar1"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="5dp"
-        android:layout_weight="1"
-        android:text="Calculate month"
+        android:text="@string/calculate_month"
         android:textColor="@android:color/white"
         android:theme="@style/ConfirmButton" />
 

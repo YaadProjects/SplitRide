@@ -24,9 +24,9 @@
                 android:background="@color/caldroid_white"
                 android:gravity="center"
                 android:padding="5dp"
-                android:text="Balance"
+                android:text="@string/balance"
                 android:textAlignment="center"
-                android:textSize="30dp"
+                android:textSize="30sp"
                 android:textStyle="bold" />
         </TableRow>
 
@@ -40,9 +40,8 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:padding="5dp"
-                android:text="€€€€"
                 android:textAlignment="center"
-                android:textSize="30dp" />
+                android:textSize="30sp" />
         </TableRow>
 
     </TableLayout>

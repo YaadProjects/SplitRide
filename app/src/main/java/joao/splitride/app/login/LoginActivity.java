@@ -53,7 +53,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 
     private static final String EMAIL_PATTERN = "^[a-zA-Z0-9#_~!$&'()*+,;=:.\"(),:;<>@\\[\\]\\\\]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*$";
-    private Button fb_button, twitter_button;
+    //private Button fb_button, twitter_button;
     private ParseUser parseUser;
     private String name, email;
     private Profile profile;
@@ -71,12 +71,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_login);
 
         // Facebook Stuff
-        fb_button = (Button) findViewById(R.id.btn_fb_login);
-        fb_button.setOnClickListener(this);
+      //  fb_button = (Button) findViewById(R.id.btn_fb_login);
+      //  fb_button.setOnClickListener(this);
 
         // Twitter stuff
-        twitter_button = (Button) findViewById(R.id.btn_twitter_login);
-        twitter_button.setOnClickListener(this);
+      //  twitter_button = (Button) findViewById(R.id.btn_twitter_login);
+      //  twitter_button.setOnClickListener(this);
 
         profile = Profile.getCurrentProfile();
 
@@ -138,50 +138,34 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                 break;
 
-            case R.id.btn_fb_login:
+            //case R.id.btn_fb_login:
 
-                ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginActivity.this, mPermissions, new LogInCallback() {
-                    @Override
-                    public void done(ParseUser user, ParseException err) {
+            //    break;
 
-                        if (user == null) {
-                            Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
-                        } else if (user.isNew()) {
-                            Log.d("MyApp", "User signed up and logged in through Facebook!");
-                            getUserDetailsFromFB();
+            //case R.id.btn_twitter_login:
 
-                        } else {
-                            Log.d("MyApp", "User logged in through Facebook!");
-                            getUserDetailsFromParse();
-                        }
-                    }
-                });
-                break;
 
-            case R.id.btn_twitter_login:
-                //maneca59@hotmail.com
-                ParseTwitterUtils.logIn(this, new LogInCallback() {
-                    @Override
-                    public void done(ParseUser user, ParseException err) {
-                        if (user == null) {
-                            Log.d("MyApp", "Uh oh. The user cancelled the Twitter login.");
-                        } else if (user.isNew()) {
-                            String screen_name = ParseTwitterUtils.getTwitter().getScreenName();
-                            //editor.putString("screen_name", screen_name);
-                            //editor.commit();
-                            Log.d("MyApp", screen_name + " has signed in");
-                            // Refresh
-                            Intent myIntent = new Intent(getBaseContext(), MainActivity.class);
-                            startActivity(myIntent);
-
-                        } else {
-                            Log.d("MyApp", "User logged in through Twitter!" + user.toString());
-                        }
-                    }
-                });
-
-                break;
+            //    break;
         }
+    }
+
+    public void onFacebookLogin(View v){
+        ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginActivity.this, mPermissions, new LogInCallback() {
+            @Override
+            public void done(ParseUser user, ParseException err) {
+
+                if (user == null) {
+                    Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
+                } else if (user.isNew()) {
+                    Log.d("MyApp", "User signed up and logged in through Facebook!");
+                    getUserDetailsFromFB();
+
+                } else {
+                    Log.d("MyApp", "User logged in through Facebook!");
+                    getUserDetailsFromParse();
+                }
+            }
+        });
     }
 
     // Facebook Stuff
@@ -324,8 +308,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             int index = (int) (rnd.nextFloat() * SALTCHARS.length());
             salt.append(SALTCHARS.charAt(index));
         }
-        String saltStr = salt.toString();
-        return saltStr;
+
+        return salt.toString();
 
     }
 
@@ -364,7 +348,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putString("userID", user.getObjectId());
-                        editor.commit();
+                        editor.apply();
 
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -420,7 +404,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("userID", user.getObjectId());
-                    editor.commit();
+                    editor.apply();
 
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -451,7 +435,27 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 
     // LOGIN WITH TWITTER
+    public void onTwitterLogin(View v){
+        //maneca59@hotmail.com
+        ParseTwitterUtils.logIn(this, new LogInCallback() {
+            @Override
+            public void done(ParseUser user, ParseException err) {
+                if (user == null) {
+                    Log.d("MyApp", "Uh oh. The user cancelled the Twitter login.");
+                } else if (user.isNew()) {
+                    String screen_name = ParseTwitterUtils.getTwitter().getScreenName();
+                    //editor.putString("screen_name", screen_name);
+                    //editor.commit();
+                    Log.d("MyApp", screen_name + " has signed in");
+                    // Refresh
+                    Intent myIntent = new Intent(getBaseContext(), MainActivity.class);
+                    startActivity(myIntent);
 
-
+                } else {
+                    Log.d("MyApp", "User logged in through Twitter!" + user.toString());
+                }
+            }
+        });
+    }
 
 }

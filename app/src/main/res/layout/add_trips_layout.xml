@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:text="Save"
+            android:text="@string/save"
             android:textColor="@android:color/white"
             android:theme="@style/ConfirmButton" />
 
@@ -45,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="50dp"
             android:layout_weight="1"
-            android:text="Cancel"
+            android:text="@string/cancel"
             android:textColor="@android:color/white"
             android:theme="@style/DismissButton" />
 
@@ -59,8 +59,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="54dp"
         android:drawableLeft="@drawable/ic_action_view_as_list"
-        android:onClick="listOfPassengersClickHandler"
-        android:text="List of passengers"
+        android:text="@string/list_of_passengers"
         android:textColor="@android:color/white"
         android:theme="@style/ConfirmButton" />
 
@@ -87,7 +86,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
                 android:layout_weight="1"
-                android:text="Date"
+                android:text="@string/date"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@android:color/black"
                 android:textStyle="bold" />
@@ -98,7 +97,7 @@
                 android:layout_height="match_parent"
                 android:layout_column="1"
                 android:layout_weight="1"
-                android:text="DD/MM/YYYY"
+                android:text="@string/date_format"
                 android:textAppearance="?android:attr/textAppearanceMedium">
 
             </EditText>
@@ -108,7 +107,8 @@
                 android:layout_width="1dp"
                 android:layout_height="40dp"
                 android:src="@drawable/calendar_icon"
-                android:theme="@style/ConfirmButton" />
+                android:theme="@style/ConfirmButton"
+                android:contentDescription="@string/calendar_day"/>
 
         </TableRow>
 
@@ -125,7 +125,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="Driver"
+                android:text="@string/driver"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@android:color/black"
                 android:textStyle="bold" />
@@ -154,8 +154,6 @@
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
                     android:layout_gravity="center"
                     android:onClick="spinnerClick"
                     android:src="@drawable/spinner_arrow"
@@ -179,7 +177,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="Vehicle"
+                android:text="@string/vehicle"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@android:color/black"
                 android:textStyle="bold" />
@@ -208,8 +206,6 @@
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
                     android:layout_gravity="center"
                     android:onClick="spinnerClick"
                     android:src="@drawable/spinner_arrow"
@@ -232,7 +228,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="Round trip"
+                android:text="@string/round_trip"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@android:color/black"
                 android:textStyle="bold" />
