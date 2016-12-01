@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
@@ -34,7 +36,12 @@ import com.parse.SignUpCallback;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -42,6 +49,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import joao.splitride.R;
+import joao.splitride.app.custom.StringSimplifier;
 import joao.splitride.app.main.MainActivity;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
@@ -53,7 +61,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
 
     private static final String EMAIL_PATTERN = "^[a-zA-Z0-9#_~!$&'()*+,;=:.\"(),:;<>@\\[\\]\\\\]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*$";
-    //private Button fb_button, twitter_button;
     private ParseUser parseUser;
     private String name, email;
     private Profile profile;
@@ -63,20 +70,29 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private Pattern pattern = Pattern.compile(EMAIL_PATTERN);
     private Matcher matcher;
 
+    public static Bitmap DownloadImageBitmap(String url) {
+        Bitmap bm = null;
+        try {
+            URL aURL = new URL(url);
+            URLConnection conn = aURL.openConnection();
+            conn.connect();
+            InputStream is = conn.getInputStream();
+            BufferedInputStream bis = new BufferedInputStream(is);
+            bm = BitmapFactory.decodeStream(bis);
+            bis.close();
+            is.close();
+        } catch (IOException e) {
+            Log.e("IMAGE", "Error getting bitmap", e);
+        }
+        return bm;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getApplicationContext());
         ParseTwitterUtils.initialize(getResources().getString(R.string.twitter_consumer_key), getResources().getString(R.string.twitter_consumer_secret));
         setContentView(R.layout.activity_login);
-
-        // Facebook Stuff
-      //  fb_button = (Button) findViewById(R.id.btn_fb_login);
-      //  fb_button.setOnClickListener(this);
-
-        // Twitter stuff
-      //  twitter_button = (Button) findViewById(R.id.btn_twitter_login);
-      //  twitter_button.setOnClickListener(this);
 
         profile = Profile.getCurrentProfile();
 
@@ -89,13 +105,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         register = (Button) findViewById(R.id.register_button);
         cancel = (Button) findViewById(R.id.register_cancel);
 
-
         login.setOnClickListener(this);
         register.setOnClickListener(this);
         cancel.setOnClickListener(this);
 
     }
-
 
     @Override
     public void onClick(View v) {
@@ -118,7 +132,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     cancel.setVisibility(View.VISIBLE);
                     login.setVisibility(View.GONE);
 
-                    register.setText("OK");
+                    register.setText(getResources().getString(R.string.ok));
                 } else {
                     username = usernameWrapper.getEditText().getText().toString();
                     password = passwordWrapper.getEditText().getText().toString();
@@ -138,14 +152,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                 break;
 
-            //case R.id.btn_fb_login:
-
-            //    break;
-
-            //case R.id.btn_twitter_login:
-
-
-            //    break;
         }
     }
 
@@ -158,7 +164,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
                 } else if (user.isNew()) {
                     Log.d("MyApp", "User signed up and logged in through Facebook!");
-                    getUserDetailsFromFB();
+                    getUserDetailsFromFB(user);
 
                 } else {
                     Log.d("MyApp", "User logged in through Facebook!");
@@ -169,42 +175,46 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     // Facebook Stuff
-    private void saveNewUser() {
-        parseUser = new ParseUser();
+    private void saveNewUser(Bitmap bitmap, final ParseUser parseUser) {
+
         parseUser.put("username", name);
         parseUser.put("email", email);
         parseUser.put("password", getSaltString());
 
 //        Saving profile photo as a ParseFile
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        Bitmap bitmap = null;
-        //((BitmapDrawable) mProfileImage.getDrawable()).getBitmap();
 
         if (bitmap != null) {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
             byte[] data = stream.toByteArray();
             String thumbName = parseUser.getUsername().replaceAll("\\s+", "");
-            final ParseFile parseFile = new ParseFile(thumbName + "_thumb.jpg", data);
+
+            StringSimplifier stringSimplifier = new StringSimplifier();
+
+            final ParseFile parseFile = new ParseFile(stringSimplifier.simplifiedString(thumbName) + "_thumb.jpg", data);
 
             parseFile.saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {
-                    parseUser.put("profileThumb", parseFile);
 
-                    //Finally save all the user details
-                    parseUser.signUpInBackground(new SignUpCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            if (e != null) {
-                                // Show the error message
-                                Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_LONG)
-                                        .show(); // Don’t forget to show!
-                            } else {
-                                Toast.makeText(LoginActivity.this, "New user:" + parseUser.getUsername() + " Signed up", Toast.LENGTH_SHORT).show();
+                    if (e != null) {
+                        Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                    } else {
+                        parseUser.put("profileThumb", parseFile);
+
+                        //Finally save all the user details
+                        parseUser.saveInBackground(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e1) {
+                                if (e1 != null) {
+                                    Toast.makeText(LoginActivity.this, e1.getMessage(), Toast.LENGTH_LONG).show();
+                                } else {
+                                    Toast.makeText(LoginActivity.this, "New user:" + parseUser.getUsername() + " Signed up", Toast.LENGTH_SHORT).show();
+                                }
                             }
-                        }
-                    });
+                        });
 
+                    }
                 }
             });
         }
@@ -222,7 +232,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     }
 
-    private void getUserDetailsFromFB() {
+    private void getUserDetailsFromFB(final ParseUser user) {
 
         Bundle parameters = new Bundle();
         parameters.putString("fields", "email,name,picture");
@@ -234,16 +244,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 HttpMethod.GET,
                 new GraphRequest.Callback() {
                     public void onCompleted(GraphResponse response) {
-            /* handle the result */
                         try {
 
-                            Log.d("Response", response.getRawResponse());
-
                             email = response.getJSONObject().getString("email");
-                            //mEmailID.setText(email);
-
                             name = response.getJSONObject().getString("name");
-                            //mUsername.setText(name);
 
                             JSONObject picture = response.getJSONObject().getJSONObject("picture");
                             JSONObject data = picture.getJSONObject("data");
@@ -251,11 +255,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             //  Returns a 50x50 profile picture
                             String pictureUrl = data.getString("url");
 
-                            Log.d("Profile pic", "url: " + pictureUrl);
-
-                            saveNewUser();
-
-                            //new ProfilePhotoAsync(pictureUrl).execute();
+                            new ProfilePhotoAsync(pictureUrl, user).execute();
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -271,26 +271,26 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         Bitmap bitmap = null;
         //Fetch profile photo
-        // try {
-        //     ParseFile parseFile = parseUser.getParseFile("profileThumb");
-        //     byte[] data = parseFile.getData();
-        //     bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-        //mProfileImage.setImageBitmap(bitmap);
-        // } catch (Exception e) {
-        //     e.printStackTrace();
-        // }
+        try {
+            ParseFile parseFile = parseUser.getParseFile("profileThumb");
+            byte[] data = parseFile.getData();
+            bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            //mProfileImage.setImageBitmap(bitmap);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         Toast.makeText(LoginActivity.this, "Welcome back " + parseUser.getUsername(), Toast.LENGTH_SHORT).show();
 
-        /*SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("userID", parseUser.getObjectId());
-        editor.commit();
+        //SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
+        //SharedPreferences.Editor editor = sharedPreferences.edit();
+        //editor.putString("userID", parseUser.getObjectId());
+        //editor.commit();
 
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        intent.putExtra("image", bitmap);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);*/
+        //Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        //intent.putExtra("image", bitmap);
+        //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        //startActivity(intent);
 
     }
 
@@ -312,8 +312,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         return salt.toString();
 
     }
-
-    // NORMAL LOGIN & REGISTER
 
     private void doLogin(String username, String password) {
 
@@ -359,6 +357,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
 
     }
+
+    // NORMAL LOGIN & REGISTER
 
     private void doRegister(String username, String password, String email) {
 
@@ -433,7 +433,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         return password.length() > 5;
     }
 
-
     // LOGIN WITH TWITTER
     public void onTwitterLogin(View v){
         //maneca59@hotmail.com
@@ -456,6 +455,30 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 }
             }
         });
+    }
+
+    class ProfilePhotoAsync extends AsyncTask<String, String, String> {
+        public Bitmap bitmap;
+        String url;
+        ParseUser user;
+
+        public ProfilePhotoAsync(String url, ParseUser user) {
+            this.url = url;
+            this.user = user;
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            // Fetching data from URI and storing in bitmap
+            bitmap = DownloadImageBitmap(url);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            saveNewUser(bitmap, user);
+        }
     }
 
 }

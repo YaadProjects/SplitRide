@@ -37,8 +37,8 @@ public class SampleApplication extends Application {
                 .applicationId("pg54vFFRG4h8UeR48iQrgER3E0Gz8PTLyOaOMqMJ")
                 .clientKey("1oGI3bsT0YzUBFQLQ4BRsYH5OHLytj47i1a6qqVp")
                 .server("https://parseapi.back4app.com")
-
                 .build());
+
         ParseFacebookUtils.initialize(SampleApplication.this);
 
         //Parse.initialize(this, "pg54vFFRG4h8UeR48iQrgER3E0Gz8PTLyOaOMqMJ", "1oGI3bsT0YzUBFQLQ4BRsYH5OHLytj47i1a6qqVp");

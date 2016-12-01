@@ -34,4 +34,5 @@ dependencies {
     compile "com.facebook.android:facebook-android-sdk:[4,5)"
     compile 'com.parse:parsefacebookutils-v4-android:1.10.3@aar'
     compile 'com.parse:parsetwitterutils-android:1.10.5'
+    compile 'com.google.guava:guava:20.0'
 }
