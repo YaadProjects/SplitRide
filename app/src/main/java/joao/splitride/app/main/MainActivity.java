@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -19,6 +21,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
@@ -76,6 +80,24 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        Bundle bundle = getIntent().getExtras();
+
+        if (bundle != null) {
+
+            Bitmap bmp = BitmapFactory.decodeByteArray(bundle.getByteArray("image"), 0, bundle.getByteArray("image").length);
+
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            View hView = navigationView.getHeaderView(0);
+
+            ImageView nav_user_image = (ImageView) hView.findViewById(R.id.user_profile_image);
+            TextView nav_username = (TextView) hView.findViewById(R.id.nav_username);
+            TextView nav_email = (TextView) hView.findViewById(R.id.nav_email);
+
+            nav_user_image.setImageBitmap(bmp);
+            nav_username.setText(bundle.getString("username"));
+            nav_email.setText(bundle.getString("email"));
+        }
 
 
         fab = (FloatingActionButton) findViewById(R.id.fab);

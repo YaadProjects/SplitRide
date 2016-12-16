@@ -5,7 +5,11 @@ import android.app.Application;
 import com.parse.Parse;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseObject;
+import com.twitter.sdk.android.Twitter;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
 
+import io.fabric.sdk.android.Fabric;
+import joao.splitride.R;
 import joao.splitride.app.entities.Account;
 import joao.splitride.app.entities.Calendars;
 import joao.splitride.app.entities.Movement;
@@ -15,14 +19,13 @@ import joao.splitride.app.entities.Trip;
 import joao.splitride.app.entities.UsersByCalendars;
 import joao.splitride.app.entities.Vehicle;
 
-/**
- * Created by Joao on 22-11-2015.
- */
-public class SampleApplication extends Application {
 
+public class SampleApplication extends Application {
 
     public void onCreate(){
         super.onCreate();
+        TwitterAuthConfig authConfig = new TwitterAuthConfig(getResources().getString(R.string.twitter_consumer_key), getResources().getString(R.string.twitter_consumer_secret));
+        Fabric.with(this, new Twitter(authConfig));
         Parse.enableLocalDatastore(this);
         ParseObject.registerSubclass(Segment.class);
         ParseObject.registerSubclass(Calendars.class);

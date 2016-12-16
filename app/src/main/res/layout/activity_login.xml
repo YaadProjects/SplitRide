@@ -113,48 +113,25 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_marginTop="5dp"
         android:gravity="center_horizontal"
-        android:layout_marginTop="5dp">
-
-        <!-- <Button
-            android:id="@+id/btn_fb_login"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:background="@color/com_facebook_blue"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:text="Login via Facebook"
-            android:textColor="@android:color/white" /> -->
+        android:orientation="horizontal">
 
         <ImageButton
             android:layout_width="51dp"
             android:layout_height="51dp"
+            android:layout_marginRight="20dp"
             android:background="@drawable/facebook"
             android:onClick="onFacebookLogin"
-            android:layout_marginRight="20dp"
             />
 
-        <ImageButton
+        <joao.splitride.app.custom.CustomTwitterLoginButton
+            android:id="@+id/twitter_button"
             android:layout_width="51dp"
             android:layout_height="51dp"
-            android:background="@drawable/twitter"
-            android:onClick="onTwitterLogin"
             android:layout_marginLeft="20dp"
-            />
+            android:background="@drawable/twitter" />
 
-        <!-- <Button
-            android:id="@+id/btn_twitter_login"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"
-            android:layout_marginTop="24dp"
-            android:background="@color/caldroid_holo_blue_light"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:text="Login via Twitter"
-            android:textColor="@android:color/white" /> -->
 
     </LinearLayout>
 

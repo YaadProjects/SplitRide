@@ -13,10 +13,20 @@
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="insert_username">Insert an username</string>
+    <string name="insert_password">Insert a password</string>
+    <string name="insert_email">Insert an email.</string>
     <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email
-        completions."
-    </string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
+    <string name="please_wait">Please wait</string>
+    <string name="performing_login">Performing login</string>
+    <string name="performing_registration">Performing registration</string>
+    <string name="welcome">Welcome back </string>
+    <string name="new_user">New user: </string>
+    <string name="signed_up"> signed up</string>
+    <string name="fb_user_cancel">The user cancelled the Facebook login</string>
+    <string name="twitter_login_fail">Twitter login failed: </string>
+
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_navigation">NavigationActivity</string>
 
@@ -104,6 +114,6 @@
 
     <string name="facebook_app_id">329652360740718</string>
 
-    <string name="twitter_consumer_key">NE1czCzz1hBp7dIHIC8EB1jXk</string>
-    <string name="twitter_consumer_secret">JlIjKj5B73NALoTRaYHGpYScwKGLCCOal5PXp495ufNH8am4Rf</string>
+    <string name="twitter_consumer_key">Z8zLtnkrGSN2QXebVYLi2ngQ7</string>
+    <string name="twitter_consumer_secret">VpZ3S0ceuMH8VJXQfep8KHrstBOXZPbh5LDha5mV55agHoaHLA</string>
 </resources>

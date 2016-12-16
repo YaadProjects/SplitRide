@@ -23,15 +23,20 @@ import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
-import com.facebook.Profile;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
-import com.parse.ParseTwitterUtils;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
+import com.twitter.sdk.android.Twitter;
+import com.twitter.sdk.android.core.Callback;
+import com.twitter.sdk.android.core.Result;
+import com.twitter.sdk.android.core.TwitterException;
+import com.twitter.sdk.android.core.TwitterSession;
+import com.twitter.sdk.android.core.identity.TwitterAuthClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,6 +54,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import joao.splitride.R;
+import joao.splitride.app.custom.CustomTwitterLoginButton;
 import joao.splitride.app.custom.StringSimplifier;
 import joao.splitride.app.main.MainActivity;
 
@@ -59,12 +65,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         add("email");
     }};
 
-
     private static final String EMAIL_PATTERN = "^[a-zA-Z0-9#_~!$&'()*+,;=:.\"(),:;<>@\\[\\]\\\\]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*$";
     private ParseUser parseUser;
     private String name, email;
-    private Profile profile;
     private Button login, register, cancel;
+    private CustomTwitterLoginButton twitterLoginButton;
     private TextInputLayout usernameWrapper, emailWrapper, passwordWrapper;
     private LinearLayout parentLayout;
     private Pattern pattern = Pattern.compile(EMAIL_PATTERN);
@@ -91,10 +96,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getApplicationContext());
-        ParseTwitterUtils.initialize(getResources().getString(R.string.twitter_consumer_key), getResources().getString(R.string.twitter_consumer_secret));
         setContentView(R.layout.activity_login);
-
-        profile = Profile.getCurrentProfile();
 
         parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
         usernameWrapper = (TextInputLayout) findViewById(R.id.usernameWrapper);
@@ -104,49 +106,97 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         login = (Button) findViewById(R.id.button_login);
         register = (Button) findViewById(R.id.register_button);
         cancel = (Button) findViewById(R.id.register_cancel);
+        twitterLoginButton = (CustomTwitterLoginButton) findViewById(R.id.twitter_button);
 
         login.setOnClickListener(this);
         register.setOnClickListener(this);
         cancel.setOnClickListener(this);
+
+        twitterLoginButton.setCallback(new Callback<TwitterSession>() {
+            @Override
+            public void success(Result<TwitterSession> result) {
+
+                TwitterSession session = Twitter.getSessionManager().getActiveSession();
+                name = session.getUserName();
+
+                TwitterAuthClient authClient = new TwitterAuthClient();
+                authClient.requestEmail(session, new Callback<String>() {
+                    @Override
+                    public void success(Result<String> result) {
+                        email = result.data;
+
+                        ParseQuery<ParseUser> query_users = ParseUser.getQuery();
+                        query_users.whereEqualTo("email", email);
+
+                        try {
+                            ParseUser user = query_users.getFirst();
+
+                            getUserDetailsFromParse(user);
+
+                        } catch (ParseException e) {
+
+                            if (e.getCode() == 101) {
+                                String pictureUrl = "https://twitter.com/" + name + "/profile_image?size=bigger";
+                                ParseUser user = new ParseUser();
+
+                                try {
+                                    user.setUsername(name);
+                                    user.setPassword(getSaltString());
+                                    user.signUp();
+
+                                    new ProfilePhotoAsync(pictureUrl, user).execute();
+                                } catch (ParseException e1) {
+                                    e1.printStackTrace();
+                                }
+                            } else
+                                e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void failure(TwitterException exception) {
+                        // Do something on failure
+                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.twitter_login_fail) + exception.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void failure(TwitterException exception) {
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.twitter_login_fail) + exception.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 
     @Override
     public void onClick(View v) {
 
-        String username, password;
-
         switch (v.getId()) {
 
             case R.id.button_login:
                 hideKeyboard();
-                username = usernameWrapper.getEditText().getText().toString();
-                password = passwordWrapper.getEditText().getText().toString();
-                doLogin(username, password);
+                doLogin();
 
                 break;
 
             case R.id.register_button:
-                if (register.getText().toString().equals("Registar")) {
+                if (register.getText().toString().equals(getResources().getString(R.string.register))) {
                     emailWrapper.setVisibility(View.VISIBLE);
                     cancel.setVisibility(View.VISIBLE);
                     login.setVisibility(View.GONE);
 
                     register.setText(getResources().getString(R.string.ok));
                 } else {
-                    username = usernameWrapper.getEditText().getText().toString();
-                    password = passwordWrapper.getEditText().getText().toString();
-                    email = emailWrapper.getEditText().getText().toString();
 
-                    doRegister(username, password, email);
-
+                    doRegister();
                 }
 
                 break;
 
             case R.id.register_cancel:
                 login.setVisibility(View.VISIBLE);
-                register.setText("Registar");
+                register.setText(getResources().getString(R.string.register));
                 emailWrapper.setVisibility(View.GONE);
                 cancel.setVisibility(View.GONE);
 
@@ -161,14 +211,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             public void done(ParseUser user, ParseException err) {
 
                 if (user == null) {
-                    Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
+                    Toast.makeText(LoginActivity.this, getResources().getString(R.string.fb_user_cancel), Toast.LENGTH_LONG).show();
                 } else if (user.isNew()) {
-                    Log.d("MyApp", "User signed up and logged in through Facebook!");
                     getUserDetailsFromFB(user);
-
                 } else {
-                    Log.d("MyApp", "User logged in through Facebook!");
-                    getUserDetailsFromParse();
+                    getUserDetailsFromParse(user);
                 }
             }
         });
@@ -186,7 +233,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         if (bitmap != null) {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
-            byte[] data = stream.toByteArray();
+            final byte[] data = stream.toByteArray();
             String thumbName = parseUser.getUsername().replaceAll("\\s+", "");
 
             StringSimplifier stringSimplifier = new StringSimplifier();
@@ -209,7 +256,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                 if (e1 != null) {
                                     Toast.makeText(LoginActivity.this, e1.getMessage(), Toast.LENGTH_LONG).show();
                                 } else {
-                                    Toast.makeText(LoginActivity.this, "New user:" + parseUser.getUsername() + " Signed up", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(LoginActivity.this, getResources().getString(R.string.new_user) + parseUser.getUsername() + getResources().getString(R.string.signed_up), Toast.LENGTH_SHORT).show();
+
+                                    SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                                    editor.putString("userID", parseUser.getObjectId());
+                                    editor.apply();
+
+                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                    intent.putExtra("username", parseUser.getUsername());
+                                    intent.putExtra("email", parseUser.getEmail());
+                                    intent.putExtra("image", data);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
                                 }
                             }
                         });
@@ -219,23 +278,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             });
         }
 
-        /*SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("userID", parseUser.getObjectId());
-        editor.commit();
-
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        intent.putExtra("image", bitmap);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent); */
-
-
     }
 
     private void getUserDetailsFromFB(final ParseUser user) {
 
         Bundle parameters = new Bundle();
-        parameters.putString("fields", "email,name,picture");
+        parameters.putString("fields", "email,name,picture.type(large)");
 
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
@@ -252,9 +300,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             JSONObject picture = response.getJSONObject().getJSONObject("picture");
                             JSONObject data = picture.getJSONObject("data");
 
-                            //  Returns a 50x50 profile picture
                             String pictureUrl = data.getString("url");
-
                             new ProfilePhotoAsync(pictureUrl, user).execute();
 
                         } catch (JSONException e) {
@@ -266,44 +312,45 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     }
 
-    private void getUserDetailsFromParse() {
-        parseUser = ParseUser.getCurrentUser();
+    private void getUserDetailsFromParse(ParseUser parseUser) {
 
-        Bitmap bitmap = null;
         //Fetch profile photo
         try {
             ParseFile parseFile = parseUser.getParseFile("profileThumb");
             byte[] data = parseFile.getData();
-            bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-            //mProfileImage.setImageBitmap(bitmap);
+
+            Toast.makeText(LoginActivity.this, getResources().getString(R.string.welcome) + parseUser.getUsername(), Toast.LENGTH_SHORT).show();
+
+            SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("userID", parseUser.getObjectId());
+            editor.apply();
+
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent.putExtra("username", parseUser.getUsername());
+            intent.putExtra("email", parseUser.getEmail());
+            intent.putExtra("image", data);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        Toast.makeText(LoginActivity.this, "Welcome back " + parseUser.getUsername(), Toast.LENGTH_SHORT).show();
-
-        //SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
-        //SharedPreferences.Editor editor = sharedPreferences.edit();
-        //editor.putString("userID", parseUser.getObjectId());
-        //editor.commit();
-
-        //Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        //intent.putExtra("image", bitmap);
-        //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        //startActivity(intent);
-
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         ParseFacebookUtils.onActivityResult(requestCode, resultCode, data);
+
+        twitterLoginButton.onActivityResult(requestCode, resultCode, data);
     }
 
     protected String getSaltString() {
         String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         StringBuilder salt = new StringBuilder();
         Random rnd = new Random();
+
         while (salt.length() < 18) {
             int index = (int) (rnd.nextFloat() * SALTCHARS.length());
             salt.append(SALTCHARS.charAt(index));
@@ -313,22 +360,24 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     }
 
-    private void doLogin(String username, String password) {
+    private void doLogin() {
+        String username = usernameWrapper.getEditText().getText().toString();
+        String password = passwordWrapper.getEditText().getText().toString();
 
         if (username.isEmpty()) {
-            usernameWrapper.setError("Introduza um username.");
+            usernameWrapper.setError(getResources().getString(R.string.insert_username));
         } else if (password.isEmpty()) {
-            passwordWrapper.setError("Introduza uma password.");
+            passwordWrapper.setError(getResources().getString(R.string.insert_password));
         } else if (!validatePassword(password)) {
-            passwordWrapper.setError("Not a valid password!");
+            passwordWrapper.setError(getResources().getString(R.string.error_incorrect_password));
         } else {
             usernameWrapper.setErrorEnabled(false);
             passwordWrapper.setErrorEnabled(false);
 
             //Set progress dialog
             final ProgressDialog progressDialog = new ProgressDialog(this);
-            progressDialog.setTitle("Por favor espere");
-            progressDialog.setMessage("A realizar o login.");
+            progressDialog.setTitle(getResources().getString(R.string.please_wait));
+            progressDialog.setMessage(getResources().getString(R.string.performing_login));
             progressDialog.show();
 
             ParseUser user = new ParseUser();
@@ -336,6 +385,64 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             user.logInInBackground(username, password, new LogInCallback() {
                 @Override
                 public void done(ParseUser user, ParseException e) {
+                    progressDialog.dismiss();
+
+                    if (e != null) {
+                        Snackbar.make(parentLayout, e.getMessage(), Snackbar.LENGTH_LONG).show();
+
+                    } else {
+                        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("userID", user.getObjectId());
+                        editor.apply();
+
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    }
+                }
+            });
+        }
+
+    }
+
+    // NORMAL LOGIN & REGISTER
+    private void doRegister() {
+
+        String username = usernameWrapper.getEditText().getText().toString();
+        String password = passwordWrapper.getEditText().getText().toString();
+        email = emailWrapper.getEditText().getText().toString();
+
+        // Validating the form
+        if (username.isEmpty()) {
+            usernameWrapper.setError(getResources().getString(R.string.insert_username));
+        } else if (password.isEmpty()) {
+            passwordWrapper.setError(getResources().getString(R.string.insert_password));
+        } else if (email.isEmpty()) {
+            emailWrapper.setError(getResources().getString(R.string.insert_email));
+        } else if (!validateEmail(email)) {
+            emailWrapper.setError(getResources().getString(R.string.error_invalid_email));
+        } else if (!validatePassword(password)) {
+            passwordWrapper.setError(getResources().getString(R.string.error_invalid_password));
+        } else {
+            usernameWrapper.setErrorEnabled(false);
+            passwordWrapper.setErrorEnabled(false);
+
+            //Set progress dialog
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle(getResources().getString(R.string.please_wait));
+            progressDialog.setMessage(getResources().getString(R.string.performing_registration));
+            progressDialog.show();
+
+
+            final ParseUser user = new ParseUser();
+            user.put("username", username);
+            user.put("password", password);
+            user.put("email", email);
+
+            user.signUpInBackground(new SignUpCallback() {
+                @Override
+                public void done(ParseException e) {
                     progressDialog.dismiss();
                     if (e != null) {
                         // Show the error message
@@ -358,63 +465,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     }
 
-    // NORMAL LOGIN & REGISTER
-
-    private void doRegister(String username, String password, String email) {
-
-        // Validating the form
-
-        if (username.isEmpty()) {
-            usernameWrapper.setError("Introduza um username.");
-        } else if (password.isEmpty()) {
-            passwordWrapper.setError("Introduza uma password.");
-        } else if (email.isEmpty()) {
-            emailWrapper.setError("Introduza um email.");
-        } else if (!validateEmail(email)) {
-            emailWrapper.setError("Not a valid email address!");
-        } else if (!validatePassword(password)) {
-            passwordWrapper.setError("Not a valid password!");
-        } else {
-            usernameWrapper.setErrorEnabled(false);
-            passwordWrapper.setErrorEnabled(false);
-        }
-
-        //Set progress dialog
-        final ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle("Por favor espere");
-        progressDialog.setMessage("A realizar o registo.");
-        progressDialog.show();
-
-
-        final ParseUser user = new ParseUser();
-        user.put("username", username);
-        user.put("password", password);
-        user.put("email", email);
-
-        user.signUpInBackground(new SignUpCallback() {
-            @Override
-            public void done(ParseException e) {
-                progressDialog.dismiss();
-                if (e != null) {
-                    // Show the error message
-                    Snackbar.make(parentLayout, e.getMessage(), Snackbar.LENGTH_LONG)
-                            .show(); // Don’t forget to show!
-                } else {
-                    // Start an intent for the dispatch activity
-                    SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MY_PREFS", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("userID", user.getObjectId());
-                    editor.apply();
-
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                }
-            }
-        });
-
-    }
-
     private void hideKeyboard() {
         View view = getCurrentFocus();
 
@@ -431,30 +481,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     public boolean validatePassword(String password) {
         return password.length() > 5;
-    }
-
-    // LOGIN WITH TWITTER
-    public void onTwitterLogin(View v){
-        //maneca59@hotmail.com
-        ParseTwitterUtils.logIn(this, new LogInCallback() {
-            @Override
-            public void done(ParseUser user, ParseException err) {
-                if (user == null) {
-                    Log.d("MyApp", "Uh oh. The user cancelled the Twitter login.");
-                } else if (user.isNew()) {
-                    String screen_name = ParseTwitterUtils.getTwitter().getScreenName();
-                    //editor.putString("screen_name", screen_name);
-                    //editor.commit();
-                    Log.d("MyApp", screen_name + " has signed in");
-                    // Refresh
-                    Intent myIntent = new Intent(getBaseContext(), MainActivity.class);
-                    startActivity(myIntent);
-
-                } else {
-                    Log.d("MyApp", "User logged in through Twitter!" + user.toString());
-                }
-            }
-        });
     }
 
     class ProfilePhotoAsync extends AsyncTask<String, String, String> {
